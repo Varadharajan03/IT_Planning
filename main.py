@@ -8,9 +8,6 @@ from typing import Dict
 from tools.json_reader import classify_prd
 from tools.web_search import search_duckduckgo
 
-# Load GOOGLE_API_KEY from .env file
-load_dotenv()
-
 # Initialize the FastAPI app
 app = FastAPI(
     title="QA Agent API",

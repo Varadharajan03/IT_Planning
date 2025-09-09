@@ -22,3 +22,4 @@ def get_llm():
         api_key=google_api_key # Pass the key directly to the model
     )
     return llm
+
