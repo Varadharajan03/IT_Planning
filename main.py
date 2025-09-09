@@ -4,9 +4,6 @@ from dotenv import load_dotenv
 from schemas.models import InputRequirements, OutputArtifacts
 from graph.workflow import app as test_case_graph_app
 
-# Load GOOGLE_API_KEY from .env file
-load_dotenv()
-
 # Initialize the FastAPI app
 app = FastAPI(
     title="QA Agent API",
