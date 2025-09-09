@@ -21,4 +21,3 @@ Build artifacts
 build/
 dist/
 *.egg-info/
-.env

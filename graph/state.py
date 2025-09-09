@@ -10,3 +10,11 @@ class GraphState(TypedDict):
     tasks: List[Dict[str, Any]]     # Jira tasks
     reallocation: Dict[str, Any]    # Task reassignment result
     notifications: List[str]        # Emails sent
+
+
+class GraphState(TypedDict):
+    """
+    Represents the state of our graph.
+    """
+    requirements: Dict[str, Any]
+    artifacts: Dict[str, Any]
