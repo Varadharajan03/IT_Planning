@@ -32,7 +32,6 @@ def check_mail_and_run():
     result = run_workflow(project_key="TEST", leave_email=leave_email)
     return result
 
-
 # Initialize the FastAPI app
 app = FastAPI(
     title="QA Agent API",
