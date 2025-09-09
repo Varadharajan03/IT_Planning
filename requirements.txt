@@ -4,7 +4,8 @@ uvicorn
 langchain
 langgraph
 langchain-google-genai
-uvicorn[standard]
+uvicorn
 pydantic
 langchain-google-genai
 python-dotenv
+langchain-core
