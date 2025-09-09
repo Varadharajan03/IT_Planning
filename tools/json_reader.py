@@ -1,5 +1,5 @@
 def classify_prd(prd_json):
-    product_idea = prd_json.get('sections', {}).get('product_idea', '').lower()
+    product_idea = prd_json.get('sections', {}).get('product_idea', '').lower() if prd_json else ''
     
     if 'finance' in product_idea:
         sector = 'Finance'
@@ -14,7 +14,7 @@ def classify_prd(prd_json):
         sector = 'General'
         category = 'Software'
     
-    for req in prd_json.get('sections', {}).get('requirements', []):
-        req['category'] = category
+    # for req in prd_json.get('sections', {}).get('requirements', []):
+    #     req['category'] = category
 
     return sector, category, prd_json
