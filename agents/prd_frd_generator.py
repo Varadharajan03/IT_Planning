@@ -21,6 +21,50 @@ class AgentState(TypedDict):
     step: str
 
 
+def correct_json_structure(json_data: dict) -> dict:
+    """
+    Corrects the structure of the provided JSON by removing duplicates, fixing FRD entries,
+    and standardizing the overview field.
+
+    Args:
+        json_data (dict): The input JSON data with PRD and FRD details.
+
+    Returns:
+        dict: The corrected JSON structure.
+    """
+    # Create a deep copy to avoid modifying the input
+    import copy
+    corrected_data = copy.deepcopy(json_data)
+
+    # Standardize the overview field in PRD
+    if "prd" in corrected_data and "overview" in corrected_data["prd"]:
+        # Clean up the overview to remove any trailing or problematic characters
+        overview = corrected_data["prd"]["overview"].strip()
+        # Ensure overview is concise and properly formatted
+        corrected_data["prd"]["overview"] = overview.replace("\n", " ").replace("  ", " ")
+
+    # Process FRD entries
+    if "frd" in corrected_data:
+        # Remove any empty objects
+        corrected_data["frd"] = [entry for entry in corrected_data["frd"] if entry]
+
+        # Fix each FRD entry
+        for entry in corrected_data["frd"]:
+            # Remove duplicate acceptance criteria
+            if "acceptanceCriteria" in entry:
+                entry["acceptanceCriteria"] = list(dict.fromkeys(entry["acceptanceCriteria"]))
+
+            # Remove duplicate fields by keeping the first occurrence
+            if isinstance(entry.get("title"), list):
+                entry["title"] = entry["title"][0] if entry["title"] else ""
+            if isinstance(entry.get("description"), list):
+                entry["description"] = entry["description"][0] if entry["description"] else ""
+            if isinstance(entry.get("priority"), list):
+                entry["priority"] = entry["priority"][0] if entry["priority"] else "Medium"
+
+    return corrected_data
+
+
 def _gather_requirements(state: AgentState) -> AgentState:
     print("🔍 Gathering requirements...")
     llm = get_llm()
@@ -213,7 +257,8 @@ def _finalize_output(state: AgentState) -> AgentState:
         "prd": state["prd_draft"],
         "frd": state["frd_draft"],
     }
-    state["final_output"] = final_output
+    # Apply the correction function to the final output
+    state["final_output"] = correct_json_structure(final_output)
     state["step"] = "completed"
     return state
 

@@ -30,8 +30,8 @@ async def analyze_risk(request: Request):
     result = run_risk_workflow(enriched_prd, sector, category, search_results)
     return result
 
-@app.post("/generate-test-cases", response_model=OutputArtifacts)
-async def generate_test_cases(requirements: InputRequirements):
+@app.post("/generate-test-cases") # No more response_model
+async def generate_test_cases(request: Request):
     """
     Receives any JSON document and returns an AI-generated, dynamically structured QA plan.
     """
@@ -42,7 +42,6 @@ async def generate_test_cases(requirements: InputRequirements):
     final_state = test_case_graph_app.invoke(inputs)
     
     return final_state['artifacts']
-
 
 # Uvicorn entry point
 if __name__ == "__main__":
