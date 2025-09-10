@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class TestCase(BaseModel):
     testCaseId: str = Field(description="A unique identifier for the test case, e.g., TC-001.")
@@ -21,3 +21,33 @@ class InputRequirements(BaseModel):
     featureName: str
     prd: Dict[str, Any]
     frd: List[Dict[str, Any]]
+
+# -------------------
+# Task Execution Schema
+# -------------------
+class Subtask(BaseModel):
+    summary: str
+    type: str
+    estimated_hours: float
+
+class Task(BaseModel):
+    summary: str
+    type: str
+    estimated_hours: float
+    subtasks: List[Subtask]
+
+class TaskDecompositionOutput(BaseModel):
+    tasks: List[Task]
+
+# -------------------
+# Step 2: Prioritization Schema
+# -------------------
+class SubtaskWithPriority(Subtask):
+    priority: str  
+
+class TaskWithPriority(Task):
+    priority: str
+    subtasks: List[SubtaskWithPriority]
+
+class TaskPrioritizationOutput(BaseModel):
+    tasks: List[TaskWithPriority]

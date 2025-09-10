@@ -5,6 +5,11 @@ from dotenv import load_dotenv
 # Load environment variables from the .env file
 load_dotenv()
 
+
+JIRA_BASE_URL = os.getenv("JIRA_BASE_URL")
+JIRA_EMAIL = os.getenv("JIRA_EMAIL")
+JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
+
 def get_llm():
     """
     Initializes and returns the Gemini 2.5 Flash model instance.
