@@ -21,3 +21,13 @@ class InputRequirements(BaseModel):
     featureName: str
     prd: Dict[str, Any]
     frd: List[Dict[str, Any]]
+
+class OutputPrd(BaseModel):
+    """
+    Structured PRD/FRD output used by the PRD generator node.
+    This mirrors the InputRequirements shape so downstream agents can reuse it directly.
+    """
+    projectName: str = Field(description="Project name, e.g., 'Aura E-Commerce Platform'")
+    featureName: str = Field(description="Feature name, e.g., 'Shopping Cart Management'")
+    prd: Dict[str, Any] = Field(description="Structured PRD content including personas and goals")
+    frd: List[Dict[str, Any]] = Field(description="List of functional requirements objects")

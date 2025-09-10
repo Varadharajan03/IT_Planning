@@ -5,4 +5,5 @@ class GraphState(TypedDict):
     Represents the state of our graph.
     """
     requirements: Dict[str, Any]
+    prd: Dict[str, Any]
     artifacts: Dict[str, Any]
