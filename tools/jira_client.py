@@ -13,10 +13,11 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 # Jira Client Config
 # -------------------
 class JiraClient:
-    def __init__(self, base_url: str, email: str, api_token: str):
+    def __init__(self, base_url: str, email: str, api_token: str,timeout: int = 30):
         self.base_url = base_url.rstrip("/")
         self.auth = (email, api_token)
         self.headers = {"Accept": "application/json", "Content-Type": "application/json"}
+        self.timeout = timeout
 
     def _handle_error_response(self, response: requests.Response, operation: str):
         """Enhanced error handling with detailed response information"""
@@ -105,16 +106,27 @@ class JiraClient:
     # -------------------
     # Create Filter (Enhanced)
     # -------------------
+    def get_filters(self, filter_name: str = None) -> Dict[str, Any]:
+        url = f"{self.base_url}/rest/api/3/filter/search"
+        params = {}
+        if filter_name:
+            params["filterName"] = filter_name
+        try:
+            response = requests.get(url, auth=self.auth, headers=self.headers, params=params, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error retrieving filters: {e}")
+            return {"values": []}
+    
     def create_filter(self, name: str, jql: str, description: str = "") -> Dict[str, Any]:
         """Create a filter with enhanced error handling"""
         url = f"{self.base_url}/rest/api/3/filter"
         
-        # Simplified payload
         payload = {
             "name": name,
             "jql": jql,
             "description": description,
-            "favourite": True
         }
         
         logging.info(f"Creating filter with payload: {payload}")
@@ -163,22 +175,22 @@ class JiraClient:
     # -------------------
     # Create Sprint (Enhanced)
     # -------------------
-    def create_sprint(self, name: str, board_id: int, start_date: str = None, end_date: str = None) -> Dict[str, Any]:
+    def create_sprint(self, name: str, board_id: int, start_date: str = None, end_date: str = None, goal: str = None) -> Dict[str, Any]:
         """Create a sprint with enhanced error handling"""
         url = f"{self.base_url}/rest/agile/1.0/sprint"
         
-        # Basic payload - dates are optional
         payload = {
             "name": name,
-            "originBoardId": board_id
+            "originBoardId": int(board_id)
         }
         
-        # Add dates only if provided
         if start_date:
             payload["startDate"] = start_date
         if end_date:
             payload["endDate"] = end_date
-        
+        if goal:
+            payload["goal"] = goal
+   
         logging.info(f"Creating sprint with payload: {payload}")
         response = requests.post(url, json=payload, auth=self.auth, headers=self.headers)
         
@@ -188,7 +200,7 @@ class JiraClient:
         return response.json()
 
     # -------------------
-    # NEW: Issue Type Detection Methods
+    # Issue Type Detection 
     # -------------------
     def get_project_issue_types(self, project_key: str):
         """Get available issue types for a specific project"""
@@ -200,7 +212,6 @@ class JiraClient:
                 scheme_data = response.json()
                 issue_types = []
                 
-                # Extract issue types from the scheme
                 for scheme in scheme_data.get('values', []):
                     for issue_type in scheme.get('issueTypes', []):
                         issue_types.append({
@@ -212,7 +223,6 @@ class JiraClient:
                 
                 return issue_types
             else:
-                # Fallback: try to get issue types via create metadata
                 return self._get_issue_types_fallback(project_key)
         
         except Exception as e:
@@ -261,24 +271,20 @@ class JiraClient:
             logging.error("No issue types available for project")
             return None
         
-        # Log available types for debugging
         logging.info("Available issue types:")
         for itype in available_types:
             logging.info(f"  - {itype['name']} (ID: {itype['id']}, Subtask: {itype['subtask']})")
         
-        # Try to find preferred types in order
         for preferred in preferred_names:
             for available in available_types:
                 if available['name'].lower() == preferred.lower():
                     return available
         
-        # If no preferred type found, return the first non-subtask type
         for available in available_types:
             if not available['subtask']:
                 logging.warning(f"Using fallback issue type: {available['name']}")
                 return available
         
-        # Last resort: return first available type
         if available_types:
             logging.warning(f"Using first available issue type: {available_types[0]['name']}")
             return available_types[0]
@@ -291,11 +297,9 @@ class JiraClient:
         """Create issue with automatic issue type detection"""
         
         if parent_key:
-            # For subtasks, look for subtask types
             if not preferred_types:
                 preferred_types = ['Sub-task', 'Subtask', 'Sub Task']
             
-            # Get subtask types only
             available_types = self.get_project_issue_types(project_key)
             subtask_types = [t for t in available_types if t.get('subtask', False)]
             
@@ -305,7 +309,6 @@ class JiraClient:
                 logging.error("No subtask types available")
                 return None
         else:
-            # For regular issues
             if not preferred_types:
                 preferred_types = ['Story', 'Task', 'Bug', 'Epic']
             
@@ -315,7 +318,6 @@ class JiraClient:
                 logging.error("No suitable issue type found")
                 return None
         
-        # Create the issue with the found type (without assignee first)
         payload = {
             "fields": {
                 "project": {"key": project_key},
@@ -339,11 +341,9 @@ class JiraClient:
             }
         }
         
-        # Add parent if this is a subtask
         if parent_key:
             payload["fields"]["parent"] = {"key": parent_key}
         
-        # Remove None values
         if not description:
             payload["fields"].pop("description", None)
         
@@ -358,7 +358,6 @@ class JiraClient:
                 issue_data = response.json()
                 logging.info(f"Issue created successfully: {issue_data['key']}")
                 
-                # Try to assign after creation if assignee_id provided
                 if assignee_id:
                     try:
                         self.assign_issue(issue_data['key'], assignee_id)
@@ -376,7 +375,7 @@ class JiraClient:
             return None
 
     # -------------------
-    # Create Issue (Enhanced - keeping original method for backward compatibility)
+    # Create Issue 
     # -------------------
     def create_issue(
         self,
@@ -446,6 +445,7 @@ class JiraClient:
     # -------------------
     def move_issue_to_sprint(self, sprint_id: int, issue_keys: list) -> Dict[str, Any]:
         """Move issues to a sprint"""
+        sprint_id = int(sprint_id)
         url = f"{self.base_url}/rest/agile/1.0/sprint/{sprint_id}/issue"
         payload = {"issues": issue_keys}
         

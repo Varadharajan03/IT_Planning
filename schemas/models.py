@@ -25,29 +25,28 @@ class InputRequirements(BaseModel):
 # -------------------
 # Task Execution Schema
 # -------------------
-class Subtask(BaseModel):
-    summary: str
-    type: str
-    estimated_hours: float
+class UserStoryInput(BaseModel):
+    userStories: List[Dict] = Field(description="List of user stories with test cases")
 
-class Task(BaseModel):
-    summary: str
-    type: str
-    estimated_hours: float
-    subtasks: List[Subtask]
+class TaskDecompositionOutputModel(BaseModel):
+    tasks: List[Dict] = Field(description="List of decomposed tasks")
 
-class TaskDecompositionOutput(BaseModel):
-    tasks: List[Task]
+class TaskPrioritizationOutputModel(BaseModel):
+    tasks: List[Dict] = Field(description="List of prioritized tasks")
 
-# -------------------
-# Step 2: Prioritization Schema
-# -------------------
-class SubtaskWithPriority(Subtask):
-    priority: str  
+class SprintPlanningOutput(BaseModel):
+    first_sprint_tasks: List[Dict] = Field(description="Tasks assigned to the first sprint")
+    total_sprints_required: int = Field(description="Total number of sprints required")
 
-class TaskWithPriority(Task):
-    priority: str
-    subtasks: List[SubtaskWithPriority]
+class JiraProjectInput(BaseModel):
+    project_key: str = Field(description="Jira project key")
+    project_name: str = Field(description="Jira project name")
+    lead_email: str = Field(description="Email of the project lead")
 
-class TaskPrioritizationOutput(BaseModel):
-    tasks: List[TaskWithPriority]
+class JiraProjectOutput(BaseModel):
+    project: Optional[Dict] = Field(description="Jira project details")
+    jira_filter: Optional[Dict] = Field(description="Jira filter details")
+    board: Optional[Dict] = Field(description="Jira board details")
+
+class JiraSprintOutput(BaseModel):
+    sprint: Optional[Dict] = Field(description="Jira sprint details")
