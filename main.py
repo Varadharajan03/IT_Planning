@@ -15,6 +15,8 @@ app = FastAPI(
     version="2.0.0",
 )
 
+@app.post("/generate-test-cases") # No more response_model
+async def generate_test_cases(request: Request):
 class PRDRequest(BaseModel):
     prd_json: Dict
 
@@ -31,9 +33,11 @@ async def analyze_risk(request: Request):
 @app.post("/generate-test-cases", response_model=OutputArtifacts)
 async def generate_test_cases(requirements: InputRequirements):
     """
-    Receives project requirements and returns AI-generated user stories and test cases.
+    Receives any JSON document and returns an AI-generated, dynamically structured QA plan.
     """
-    inputs = {"requirements": requirements.dict()}
+    requirements_data = await request.json()
+    
+    inputs = {"requirements": requirements_data}
     
     final_state = test_case_graph_app.invoke(inputs)
     
