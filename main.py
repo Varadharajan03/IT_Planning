@@ -32,19 +32,24 @@ def check_mail_and_run():
     result = run_workflow(project_key="TEST", leave_email=leave_email)
     return result
 
+# Load environment variables
+load_dotenv()
+
 # Initialize the FastAPI app
 app = FastAPI(
-    title="QA Agent API",
-    description="This agent receives PRD/FRD documents and generates comprehensive test cases.",
-    version="2.0.0",
+    title="Fully Flexible QA Agent API",
+    description="This agent receives any PRD/FRD JSON, analyzes it, and returns a dynamically structured QA plan.",
+    version="4.0.0",
 )
 
-@app.post("/generate-test-cases", response_model=OutputArtifacts)
-async def generate_test_cases(requirements: InputRequirements):
+@app.post("/generate-test-cases") # No more response_model
+async def generate_test_cases(request: Request):
     """
-    Receives project requirements and returns AI-generated user stories and test cases.
+    Receives any JSON document and returns an AI-generated, dynamically structured QA plan.
     """
-    inputs = {"requirements": requirements.dict()}
+    requirements_data = await request.json()
+    
+    inputs = {"requirements": requirements_data}
     
     final_state = test_case_graph_app.invoke(inputs)
     
@@ -53,4 +58,3 @@ async def generate_test_cases(requirements: InputRequirements):
 # Uvicorn entry point
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
