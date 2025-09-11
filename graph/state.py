@@ -21,5 +21,8 @@ class GraphState(TypedDict):
     # Test case output
     test_artifacts: Dict[str, Any]
     
+    # Task execution output
+    task_execution_output: Dict[str, Any]
+    
     # Final consolidated output
     final_output: Dict[str, Any]

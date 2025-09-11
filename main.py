@@ -12,8 +12,8 @@ from tools.web_search import search_duckduckgo
 # Initialize the FastAPI app
 app = FastAPI(
     title="IT Planning Workflow API",
-    description="Unified workflow for PRD/FRD generation, risk analysis, and test case generation.",
-    version="3.0.0",
+    description="Unified workflow for PRD/FRD generation, risk analysis, test case generation, and task execution with Jira integration.",
+    version="4.0.0",
 )
 
 class PRDRequest(BaseModel):
@@ -42,7 +42,7 @@ async def root():
 @app.post("/unified-workflow")
 async def unified_workflow(request: UnifiedWorkflowRequest):
     """
-    Complete workflow: PRD/FRD Generation → Risk Analysis → Test Case Generation → Markdown Output
+    Complete workflow: PRD/FRD Generation → Risk Analysis → Test Case Generation → Task Execution → Markdown Output
     """
     try:
         result = run_unified_workflow(

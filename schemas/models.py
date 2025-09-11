@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any
+from typing import List, Dict, Any,Optional
 
 class TestCase(BaseModel):
     testCaseId: str = Field(description="A unique identifier for the test case, e.g., TC-001.")
@@ -31,3 +31,32 @@ class OutputPrd(BaseModel):
     featureName: str = Field(description="Feature name, e.g., 'Shopping Cart Management'")
     prd: Dict[str, Any] = Field(description="Structured PRD content including personas and goals")
     frd: List[Dict[str, Any]] = Field(description="List of functional requirements objects")
+
+# -------------------
+# Task Execution Schema
+# -------------------
+class UserStoryInput(BaseModel):
+    userStories: List[Dict] = Field(description="List of user stories with test cases")
+
+class TaskDecompositionOutputModel(BaseModel):
+    tasks: List[Dict] = Field(description="List of decomposed tasks")
+
+class TaskPrioritizationOutputModel(BaseModel):
+    tasks: List[Dict] = Field(description="List of prioritized tasks")
+
+class SprintPlanningOutput(BaseModel):
+    first_sprint_tasks: List[Dict] = Field(description="Tasks assigned to the first sprint")
+    total_sprints_required: int = Field(description="Total number of sprints required")
+
+class JiraProjectInput(BaseModel):
+    project_key: str = Field(description="Jira project key")
+    project_name: str = Field(description="Jira project name")
+    lead_email: str = Field(description="Email of the project lead")
+
+class JiraProjectOutput(BaseModel):
+    project: Optional[Dict] = Field(description="Jira project details")
+    jira_filter: Optional[Dict] = Field(description="Jira filter details")
+    board: Optional[Dict] = Field(description="Jira board details")
+
+class JiraSprintOutput(BaseModel):
+    sprint: Optional[Dict] = Field(description="Jira sprint details")

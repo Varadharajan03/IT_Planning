@@ -4,9 +4,10 @@ from .state import GraphState
 from agents.prd_frd_generator import run_prd_frd
 from agents.risk_analysis_agent import analyze_risks
 from agents.testcase_generator import generate_test_artifacts_node
+from agents.task_execution_agent import TaskExecutionAgent
 from tools.json_reader import classify_prd
 from tools.web_search import search_duckduckgo
-from schemas.models import OutputArtifacts
+from schemas.models import OutputArtifacts, UserStoryInput
 from config.settings import get_llm
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
@@ -67,6 +68,40 @@ def test_case_generator_node(state: GraphState) -> Dict[str, Any]:
     result = generate_test_artifacts_node(temp_state)
     
     return {"test_artifacts": result["artifacts"]}
+
+def task_execution_node(state: GraphState) -> Dict[str, Any]:
+    """Execute task decomposition, prioritization, and Jira setup"""
+    print("⚙️ Executing task decomposition and Jira setup...")
+    
+    # Prepare user stories input for task execution
+    user_stories_data = {
+        "userStories": state["test_artifacts"].get("userStories", [])
+    }
+    
+    # Resolve project name for Jira: prefer Agent1 project_name, fallback to PRD output or a safe default
+    project_name = (
+        state.get('project_name')
+        or (state.get('prd_output') or {}).get('projectName')
+        or "IT Planning Project"
+    )
+    
+    try:
+        # Create task execution agent with resolved project name (deterministic key ensures reuse)
+        task_agent = TaskExecutionAgent(
+            user_stories=user_stories_data,
+            project_name=project_name,
+            project_prefix="TP",
+            lead_email="jeba.m.ihub@snsgroups.com"
+        )
+        
+        # Execute deterministic pipeline to ensure Jira artifacts are created
+        execution_result = task_agent.run_pipeline()
+        
+        return {"task_execution_output": {"result": execution_result, "status": "completed"}}
+        
+    except Exception as e:
+        print(f"❌ Error in task execution: {str(e)}")
+        return {"task_execution_output": {"result": f"Error: {str(e)}", "status": "failed"}}
 
 def markdown_generator_node(state: GraphState) -> Dict[str, Any]:
     """Generate markdown file with all outputs"""
@@ -180,7 +215,24 @@ def markdown_generator_node(state: GraphState) -> Dict[str, Any]:
     markdown_content += f"""
 ---
 
-## 5. Summary
+## 5. Task Execution & Sprint Planning
+
+### Project: {state['project_name']} - {state['feature_name']}
+
+### Task Decomposition and Prioritization
+{state.get('task_execution_output', {}).get('result', 'Task execution not completed')}
+
+### Sprint Planning Summary
+The task execution agent has processed the user stories and created:
+- Decomposed tasks with detailed breakdowns
+- Task prioritization based on business value and dependencies
+- Role mapping to team members
+- Sprint planning with capacity calculations
+- Jira project setup with issues and subtasks for **{state['project_name']} - {state['feature_name']}**
+
+---
+
+## 6. Summary
 
 This document contains the complete analysis for the **{state['project_name']}** project, specifically the **{state['feature_name']}** feature. The analysis includes:
 
@@ -188,6 +240,7 @@ This document contains the complete analysis for the **{state['project_name']}**
 2. **Functional Requirements Document (FRD)** - Details the specific functional requirements
 3. **Risk Analysis** - Identifies potential risks and their mitigation strategies
 4. **Test Cases** - Comprehensive test scenarios for quality assurance
+5. **Task Execution** - Decomposed tasks, sprint planning, and Jira project setup
 
 All outputs have been generated using AI-powered analysis and should be reviewed by the development team before implementation.
 
@@ -211,31 +264,35 @@ All outputs have been generated using AI-powered analysis and should be reviewed
             "prd_output": state["prd_output"],
             "risk_analysis": state["risk_analysis"],
             "test_artifacts": state["test_artifacts"],
+            "task_execution": state.get("task_execution_output", {}),
             "summary": {
                 "project_name": state["project_name"],
                 "feature_name": state["feature_name"],
                 "total_risks": len(state.get("risk_analysis", [])),
                 "total_user_stories": len(state.get("test_artifacts", {}).get("userStories", [])),
-                "total_test_cases": sum(len(story.get("testCases", [])) for story in state.get("test_artifacts", {}).get("userStories", []))
+                "total_test_cases": sum(len(story.get("testCases", [])) for story in state.get("test_artifacts", {}).get("userStories", [])),
+                "task_execution_status": state.get("task_execution_output", {}).get("status", "not_started")
             }
         }
     }
 
 def create_unified_workflow() -> StateGraph:
-    """Create the unified workflow that chains all three agents"""
+    """Create the unified workflow that chains all four agents"""
     workflow = StateGraph(GraphState)
     
     # Add nodes
     workflow.add_node("prd_frd_generator", prd_frd_generator_node)
     workflow.add_node("risk_analysis", risk_analysis_node)
     workflow.add_node("test_case_generator", test_case_generator_node)
+    workflow.add_node("task_execution", task_execution_node)
     workflow.add_node("markdown_generator", markdown_generator_node)
     
     # Define the flow - sequential to ensure all data is available
     workflow.set_entry_point("prd_frd_generator")
     workflow.add_edge("prd_frd_generator", "risk_analysis")
     workflow.add_edge("risk_analysis", "test_case_generator")
-    workflow.add_edge("test_case_generator", "markdown_generator")
+    workflow.add_edge("test_case_generator", "task_execution")
+    workflow.add_edge("task_execution", "markdown_generator")
     workflow.add_edge("markdown_generator", END)
     
     return workflow.compile()
@@ -260,6 +317,7 @@ def run_unified_workflow(
         "risk_analysis": [],
         "risk_thinking": "",
         "test_artifacts": {},
+        "task_execution_output": {},
         "final_output": {}
     }
     
