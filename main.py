@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from schemas.models import InputRequirements, OutputArtifacts
 from graph.workflow import app as test_case_graph_app, run_risk_workflow
 from graph.unified_workflow import run_unified_workflow
+from graph.resource_optimizer import run_workflow as run_resource_optimizer
+from tools.gmail_utils import check_leave_mail
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from typing import Dict, Optional
@@ -12,8 +14,8 @@ from tools.web_search import search_duckduckgo
 # Initialize the FastAPI app
 app = FastAPI(
     title="IT Planning Workflow API",
-    description="Unified workflow for PRD/FRD generation, risk analysis, test case generation, and task execution with Jira integration.",
-    version="4.0.0",
+    description="Unified workflow for PRD/FRD generation, risk analysis, test case generation, task execution with Jira, and resource optimization.",
+    version="4.1.0",
 )
 
 class PRDRequest(BaseModel):
@@ -31,18 +33,17 @@ async def root():
     """Root endpoint with API information"""
     return {
         "message": "IT Planning Workflow API",
-        "version": "3.0.0",
+        "version": "4.1.0",
         "endpoints": {
             "unified_workflow": "/unified-workflow",
-            "analyze_risk": "/analyze-risk", 
-            "generate_test_cases": "/generate-test-cases"
+            "resource_optimizer_gmail": "/resource-optimizer-gmail"
         }
     }
 
 @app.post("/unified-workflow")
 async def unified_workflow(request: UnifiedWorkflowRequest):
     """
-    Complete workflow: PRD/FRD Generation → Risk Analysis → Test Case Generation → Task Execution → Markdown Output
+    Complete workflow: PRD/FRD Generation → Risk Analysis → Test Case Generation → Task Execution → Markdown Output -> Resource Optimization
     """
     try:
         result = run_unified_workflow(
@@ -64,27 +65,27 @@ async def unified_workflow(request: UnifiedWorkflowRequest):
             "data": None
         }
 
-@app.post("/analyze-risk")
-async def analyze_risk(request: Request):
-    """Legacy endpoint for risk analysis only"""
-    prd_json = await request.json()  # no fixed schema here
-    sector, category, enriched_prd = classify_prd(prd_json)
-    # Use the new DuckDuckGo search function
-    search_results = search_duckduckgo(f"{sector} {category} employee engagement platform risks 2025")
-    
-    result = run_risk_workflow(enriched_prd, sector, category, search_results)
-    return result
+@app.post("/resource-optimizer-gmail")
+async def resource_optimizer_gmail(payload: Dict[str, str]):
+    """
+    Gmail/OAuth-enabled Resource Optimizer runner.
+    Expected JSON:
+    {"project_key": "EPS"}
+    It will open a Google OAuth consent flow to fetch the leave email.
+    """
+    project_key = payload.get("project_key")
+    if not project_key:
+        return {"success": False, "message": "project_key is required"}
+    try:
+        leave_email = check_leave_mail()
+        if not leave_email:
+            return {"success": False, "message": "No leave mails found"}
+        result = run_resource_optimizer(project_key=project_key, leave_email=leave_email)
+        return {"success": True, "data": result}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
 
-@app.post("/generate-test-cases", response_model=OutputArtifacts)
-async def generate_test_cases(requirements: InputRequirements):
-    """
-    Legacy endpoint for test case generation only
-    """
-    inputs = {"requirements": requirements.dict()}
-    
-    final_state = test_case_graph_app.invoke(inputs)
-    
-    return final_state['artifacts']
+
 
 
 # Uvicorn entry point

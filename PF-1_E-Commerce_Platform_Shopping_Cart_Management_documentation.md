@@ -2,124 +2,107 @@
 
 ## Feature: Shopping Cart Management
 
-**Generated on:** 2025-09-11 12:42:00
+**Generated on:** 2025-09-11 15:23:41
 
 ---
 
 ## 1. Product Requirements Document (PRD)
 
 ### Overview
-This PRD outlines the requirements for the Shopping Cart Management feature within the PF-1 E-Commerce Platform. The primary goal is to provide a robust, intuitive, and high-performing shopping cart experience for online shoppers, while also offering merchants the tools to manage inventory, promotions, and gain insights. This feature is critical for driving conversion, reducing abandonment, and enhancing the overall user experience.
+This document outlines the Product Requirements for the Shopping Cart Management feature within the PF-1 E-Commerce Platform. The primary goal is to provide a robust, intuitive, and efficient shopping cart experience for online shoppers, while also offering valuable insights and operational efficiencies for merchants. This feature is critical for driving conversion rates, reducing cart abandonment, and enhancing the overall user experience.
 
 ### Personas
-- **Online Shopper (Customer)**: Easily add, remove, and update items in their cart, View accurate totals and shipping costs, Apply discounts, Save items for later, Proceed to a smooth checkout
-- **Merchant (Platform Admin/Store Owner)**: Provide a seamless customer cart experience, Track abandoned carts, Manage inventory accuracy, Offer promotions effectively, Gain insights into customer purchasing behavior
+- **Online Shopper**: Efficiently add, remove, and modify items in their cart, Save carts for later, Easily proceed to checkout, Discover relevant products, Ensure a smooth and secure transaction
+- **Merchant**: Gain insights into customer purchasing intent and cart abandonment, Manage inventory effectively based on cart contents, Offer targeted promotions, Ensure seamless order processing and fulfillment, Reduce operational overhead
 
 ### Business Goals
-- Increase Conversion Rates
-- Reduce Cart Abandonment
-- Enhance User Experience
-- Drive Revenue Growth
-- Platform Differentiation
+- Increase Conversion Rates: Drive more shoppers from cart to successful purchase.
+- Reduce Cart Abandonment: Minimize the number of users who add items but do not complete the purchase.
+- Enhance User Experience: Provide a modern, intuitive, and reliable shopping cart experience for customers.
+- Improve Operational Efficiency: Streamline order management and inventory tracking for merchants.
+- Drive Revenue Growth: Increase overall sales and average order value through effective cart management and promotional capabilities.
 
 ### Success Metrics
-- Cart-to-Purchase Conversion Rate
-- Cart Abandonment Rate
-- Average Order Value (AOV)
-- Page Load Time (Cart & Checkout)
-- Error Rate (Cart Operations)
-- Customer Satisfaction (CSAT/NPS)
-- Feature Adoption Rate
+- Cart-to-Purchase Conversion Rate: Percentage of carts that result in a completed order.
+- Cart Abandonment Rate: Percentage of initiated carts that are not completed.
+- Average Order Value (AOV): The average value of each completed order.
+- Customer Satisfaction (CSAT/NPS): Feedback related to the shopping cart and checkout experience.
+- Error Rate: Frequency of technical errors encountered during cart operations or checkout.
+- Page Load Time: Speed of the shopping cart page and related interactions.
+- Feature Adoption Rate: Usage of advanced cart functionalities (e.g., "save for later," personalized recommendations).
 
 ### Identified Risks
-- Technical Scalability
-- Data Integrity
-- Performance Issues
-- Complex Integrations
-- Security Vulnerabilities
-- User Experience Friction
+- Technical Complexity: Integrating advanced cart functionalities (e.g., real-time inventory, personalized recommendations, complex promotions) with existing systems.
+- Performance & Scalability: Ensuring the cart remains fast and responsive under high traffic loads, especially during peak shopping seasons.
+- Security Vulnerabilities: Protecting sensitive customer data and payment information within the cart and checkout process.
+- User Experience Issues: A poorly designed or confusing cart interface could lead to frustration and increased abandonment.
+- Integration Challenges: Seamlessly connecting with various payment gateways, shipping providers, and inventory management systems.
+- Data Privacy Compliance: Adhering to regulations (e.g., GDPR, CCPA) regarding customer data collected and stored in the cart.
 
 ---
 
 ## 2. Functional Requirements Document (FRD)
 
-### FR-1: Cart Item Management (Add, Update, Remove)
+### FR-1: Shopping Cart Item Management
 
-**Description:** Users must be able to add products to their shopping cart, modify the quantity of existing items, and remove items from the cart. These actions should be reflected immediately in the cart's display and calculations.
+**Description:** Users must be able to add products to their shopping cart, modify the quantity of existing items, and remove items from the cart. The cart's subtotal and item-level pricing should update dynamically with these changes.
 
 **Priority:** High
 
 **Acceptance Criteria:**
-- A user can add a product to the cart from a product detail page or quick view.
+- A user can add a product to the cart from a product detail page or listing.
 - A user can increase or decrease the quantity of an item already in the cart.
 - A user can remove an item from the cart.
-- The cart UI updates immediately after any item management action (add, update quantity, remove).
-- Attempting to add an item with a quantity of zero or less results in an error or no action.
+- The cart subtotal and individual item prices update instantly upon quantity changes or item removal.
+- The system prevents adding out-of-stock items to the cart or flags them if they become unavailable while in the cart.
 
-### FR-2: Display Cart Contents and Totals
+### FR-2: Persistent Shopping Cart for Logged-in Users
 
-**Description:** The shopping cart must accurately display all items added by the user, their individual prices, quantities, and calculate the subtotal, estimated shipping costs, and the grand total, providing transparency to the shopper.
-
-**Priority:** High
-
-**Acceptance Criteria:**
-- The cart page displays a list of all unique items, including product name, image, price, and quantity.
-- The cart page displays the subtotal of all items before taxes and shipping.
-- The cart page displays an estimated shipping cost based on the user's location (if available) or a default, with a clear indication it's an estimate.
-- The cart page displays the grand total, including subtotal, estimated shipping, and any applicable taxes (if calculated at this stage).
-- All price calculations are accurate and reflect current product pricing.
-
-### FR-3: Discount and Promotion Application
-
-**Description:** Users must be able to apply valid discount codes or promotions to their shopping cart, and the cart total should reflect the applied discount, enhancing the platform's ability to drive conversion.
+**Description:** The shopping cart contents for logged-in users must be saved across sessions and devices, allowing them to return to their cart at a later time without losing their selected items.
 
 **Priority:** High
 
 **Acceptance Criteria:**
-- A user can enter a valid discount code in a designated input field on the cart page.
-- Upon applying a valid code, the cart total is updated to reflect the discount, and the discount amount is clearly displayed.
-- An invalid or expired discount code displays an appropriate error message to the user.
-- The system supports applying only one discount code at a time, or clearly defines rules for multiple discounts.
-- Users can remove an applied discount code, reverting the cart total to its pre-discount state.
+- When a logged-in user adds items, logs out, and logs back in, their cart items are restored.
+- Cart contents are synchronized across multiple devices (e.g., desktop, mobile) for the same logged-in user.
+- Guest users' carts are persisted for a defined duration (e.g., 24 hours) using browser cookies.
 
-### FR-4: Real-time Inventory Validation
+### FR-3: Save for Later Functionality
 
-**Description:** The system must validate the availability of items in the cart against current inventory levels in real-time, preventing users from purchasing out-of-stock items or quantities exceeding available stock, and ensuring data integrity for merchants.
-
-**Priority:** High
-
-**Acceptance Criteria:**
-- When an item is added to the cart, its availability is checked against current inventory.
-- If an item is out of stock, the user is notified, and the item cannot be added or is clearly marked as unavailable in the cart.
-- If the requested quantity exceeds available stock, the user is notified, and the quantity in the cart is automatically adjusted to the maximum available.
-- Inventory checks occur again before proceeding to checkout to ensure final availability.
-- The cart clearly indicates items that are low in stock (e.g., 'Only 3 left!') or out of stock.
-
-### FR-5: Persistent Shopping Cart
-
-**Description:** The shopping cart contents must persist across user sessions, allowing logged-in users to return to their cart at a later time or from a different device with their items intact. For guest users, the cart should persist for a defined period (e.g., 24-48 hours) using browser cookies.
-
-**Priority:** High
-
-**Acceptance Criteria:**
-- For logged-in users, cart contents are saved to their account and are accessible from any device upon login.
-- For guest users, cart contents persist for at least 24 hours via browser cookies.
-- If a user logs in with items in a guest cart, the guest cart items are merged with their existing account cart, prioritizing the most recent updates.
-- Cart persistence does not interfere with real-time inventory checks (FR-4).
-- Items in a persistent cart that become unavailable are clearly marked upon the user's return.
-
-### FR-6: Save for Later Functionality
-
-**Description:** Users should have the option to move items from their active shopping cart to a 'Save for Later' list, allowing them to easily revisit these items without cluttering their current cart, thereby reducing cart abandonment and enhancing user experience.
+**Description:** Users should be able to move items from their active shopping cart to a 'Save for Later' list, allowing them to consider these items for future purchases without cluttering their current cart.
 
 **Priority:** Medium
 
 **Acceptance Criteria:**
-- A 'Save for Later' option is available for each item in the active cart.
-- Moving an item to 'Save for Later' removes it from the active cart and updates the cart total.
-- Saved items are displayed in a separate, clearly labeled section on the cart page or a dedicated 'Saved Items' page.
-- Users can move items from 'Save for Later' back to their active cart, subject to current inventory availability.
-- Saved items retain their original product details (e.g., price, variant) and are subject to inventory checks when moved back to the cart.
+- A user can move an item from the active cart to a 'Save for Later' section.
+- Items in 'Save for Later' are displayed separately from active cart items.
+- A user can move an item from 'Save for Later' back to the active cart.
+- 'Save for Later' items are persisted across sessions for logged-in users.
+
+### FR-4: Shopping Cart Summary and Checkout Initiation
+
+**Description:** The shopping cart page must clearly display a summary of all items, their quantities, individual prices, subtotal, estimated taxes, shipping costs (if applicable), and a clear call-to-action to proceed to checkout.
+
+**Priority:** High
+
+**Acceptance Criteria:**
+- The cart page displays a list of all items, including product image, name, quantity, and price.
+- The cart page displays the subtotal of all items.
+- The cart page displays estimated tax and shipping costs (if applicable) before proceeding to checkout.
+- A prominent 'Proceed to Checkout' button is available and clearly visible.
+- Clicking 'Proceed to Checkout' navigates the user to the first step of the checkout process.
+
+### FR-5: Real-time Inventory Availability Check
+
+**Description:** The system must check and display the real-time availability of products in the shopping cart, alerting users if an item is out of stock or has limited quantity, and preventing checkout with unavailable items.
+
+**Priority:** High
+
+**Acceptance Criteria:**
+- When an item in the cart goes out of stock, the user is notified on the cart page.
+- Users cannot proceed to checkout if their cart contains out-of-stock items.
+- If an item's available quantity is less than the quantity in the cart, the user is prompted to adjust the quantity.
+- Inventory status updates are reflected dynamically on the cart page without requiring a full page refresh.
 
 
 ---
@@ -127,56 +110,66 @@ This PRD outlines the requirements for the Shopping Cart Management feature with
 ## 3. Risk Analysis
 
 ### Analysis Summary
-THINKING: The user wants a detailed risk analysis of the "Shopping Cart Management" feature for the PF-1 E-Commerce Platform. I need to leverage the provided PRD, FRDs, and recent risk insights. My output must include a comprehensive explanation of the identified risks, followed by a JSON array structured with `risk_type`, `severity`, `description`, and `law`. I will categorize risks into Requirement, Scope Creep, Project Management, Stakeholder, Technical, Quality, Market/Strategic, and Communication risks.
+THINKING: The user wants a detailed risk analysis of the provided Product Requirements Document (PRD) for the "Shopping Cart Management" feature, incorporating recent risk insights. I need to categorize these risks into specific types, assign a severity, provide a clear description, and indicate if a specific law (DDPA) is relevant.
 
-Here's my plan:
-1.  **Read through the PRD and FRDs carefully:** Identify explicit requirements, implicit expectations, business goals, success metrics, and pre-identified risks. Pay attention to priorities and descriptions.
-2.  **Analyze Recent Risk Insights:** Connect these insights to potential risks within the PRD context. For example, insights on cart abandonment, security, and inventory management directly inform several risk categories.
-3.  **Categorize Risks:** For each identified potential issue, assign it to one of the specified risk types.
-4.  **Determine Severity:** Assign a severity (Low, Medium, High) based on the potential impact on business goals, project success, and user experience.
-5.  **Formulate Descriptions:** Write clear, concise, and actionable descriptions for each risk, linking them back to specific PRD/FRD elements or insights.
-6.  **Assign `law` attribute:** Set to "DDPA" for risks directly related to data protection (e.g., security vulnerabilities leading to data breaches), otherwise "null".
-7.  **Structure the Output:** First, the detailed explanation, then the JSON array.
+Here's a breakdown of my thought process:
 
-**Detailed Breakdown of Risk Identification:**
+1.  **Understand the Goal:** The primary goal is to identify and categorize potential risks associated with the "Shopping Cart Management" feature, considering both the PRD and external risk insights. The output needs a detailed explanation first, followed by a structured JSON array.
 
-*   **Requirement Risk:**
-    *   Ambiguity in "estimated shipping costs" (FR-2) and "taxes (if calculated at this stage)" (FR-2).
-    *   Lack of specific rules for "multiple discounts" (FR-3).
-    *   Subjectivity of "seamless," "robust," "intuitive," "high-performing" (Overview, Merchant Goal).
-    *   Missing detailed requirements for "Track abandoned carts" and "Gain insights into customer purchasing behavior" (Merchant Goals).
-*   **Scope Creep Risk:**
-    *   Merchant goals for analytics/insights (abandoned carts, purchasing behavior) are not detailed in FRDs, creating pressure for additional features.
-    *   "Platform Differentiation" (Business Goal) is broad and could lead to feature creep.
-    *   "Save for Later" (FR-6) is medium priority, but stakeholder insistence could lead to scope creep if not managed.
-*   **Project Management Risk:**
-    *   High priority for almost all FRDs (1-5) indicates an aggressive scope, potentially leading to delays or quality issues.
-    *   Dependencies on external systems (inventory, shipping, promotions) for FR-2, FR-3, FR-4.
-    *   Resource availability/expertise for complex features (real-time inventory, persistent cart merging).
-*   **Stakeholder Risk:**
-    *   Differing interpretations of subjective goals (e.g., "seamless experience").
-    *   Potential disagreements on ambiguous requirements (shipping, taxes, discount rules).
-*   **Technical Risk:**
-    *   Explicitly mentioned PRD risks: Technical Scalability, Data Integrity, Performance Issues, Complex Integrations, Security Vulnerabilities.
-    *   Real-time Inventory Validation (FR-4) is technically challenging at scale.
-    *   Persistent Cart Merging Logic (FR-5) is complex and prone to errors.
-    *   Discount Engine Complexity (FR-3) for various rules.
-    *   Software supply chain risks (recent insight) for integrations.
-*   **Quality Risk:**
-    *   User Experience Friction (PRD risk) if UI updates are not immediate, error messages are unclear, or flow is not intuitive.
-    *   Accuracy of calculations (FR-2, FR-3) is critical.
-    *   Reliability of Real-time Inventory (FR-4) to prevent out-of-stock purchases.
-    *   Cart Persistence Issues (FR-5) like disappearing items or incorrect merging.
-*   **Market/Strategic Risk:**
-    *   Failure to achieve "Increase Conversion Rates" and "Reduce Cart Abandonment" (Business Goals).
-    *   Failure to achieve "Platform Differentiation" (Business Goal) in a crowded market (recent insight).
-    *   Negative brand perception due to poor UX, performance, or security.
-*   **Communication Risk:**
-    *   Ambiguities in requirements (as identified in Requirement Risk) if not clarified.
-    *   Lack of clear communication regarding integration dependencies and potential delays.
-    *   Insufficient communication of technical constraints or trade-offs to non-technical stakeholders.
+2.  **Initial Scan of PRD - Overview & Goals:**
+    *   "Robust, intuitive, efficient shopping cart experience" - sets high expectations for quality and performance.
+    *   "Driving conversion rates, reducing cart abandonment" - direct business impact, making any related risks high severity.
+    *   "Valuable insights and operational efficiencies for merchants" - implies data collection, analytics, and potentially complex backend features.
+    *   **Personas:** Shopper goals (efficiency, save for later, checkout, security) and Merchant goals (insights, inventory, promotions, efficiency, revenue). These highlight areas where failure could lead to dissatisfaction or missed business objectives.
+    *   **Business Goals & Success Metrics:** These are critical. Any risk that jeopardizes these metrics (conversion, abandonment, AOV, CSAT, error rate, page load, adoption) is significant.
 
-Now, I will structure the output as requested.
+3.  **Analyze PRD's Pre-identified Risks:** The PRD itself lists several risks. I'll use these as a starting point and elaborate on them, categorizing them into the required types.
+    *   `Technical Complexity`: Directly maps to **Technical Risk**.
+    *   `Performance & Scalability`: Directly maps to **Technical Risk**.
+    *   `Security Vulnerabilities`: Maps to **Technical Risk** and potentially **Quality Risk**. This will also trigger the `law` attribute.
+    *   `User Experience Issues`: Maps to **Quality Risk** and impacts **Market/Strategic Risk**.
+    *   `Integration Challenges`: Directly maps to **Technical Risk**.
+    *   `Data Privacy Compliance`: Maps to **Market/Strategic Risk** (regulatory) and **Technical Risk** (implementation). This will also trigger the `law` attribute.
+
+4.  **Deep Dive into Functional Requirements (FRDs):**
+    *   **FR-1 (Item Management):** "Dynamically update," "prevents adding out-of-stock items." This implies real-time inventory integration, adding complexity.
+    *   **FR-2 (Persistent Cart):** "Saved across sessions and devices," "synchronized across multiple devices," "guest users' carts are persisted." This is a major technical challenge for data consistency, storage, and synchronization logic. Also has data privacy implications.
+    *   **FR-3 (Save for Later):** Requires separate storage and management, adding to data complexity.
+    *   **FR-4 (Summary & Checkout):** "Estimated taxes, shipping costs (if applicable)." Requires integration with external services.
+    *   **FR-5 (Real-time Inventory):** Explicitly "real-time availability," "dynamically on the cart page without requiring a full page refresh." This is a high-complexity, high-performance requirement, heavily reliant on robust integration.
+
+5.  **Integrate Recent Risk Insights:** These insights provide external context and emerging trends.
+    *   "AI and ML in shopping cart software," "sophisticated analytics dashboards," "personalized customer experiences": These align with the PRD's mention of "personalized recommendations" and "insights for merchants." If PF-1 doesn't incorporate these, it's a **Market/Strategic Risk** (competitive disadvantage). If it tries to, it's a **Technical Risk** (complexity) and **Scope Creep Risk** (if not clearly defined).
+    *   "Seamless checkout experience," "stronger security," "customizable functions," "diverse range of payment gateways": Reinforce existing PRD risks (UX, security, integration) and highlight competitive pressures.
+    *   "Managing software risks in 2025 in light of AI and the expanding attack surface": General reinforcement of **Technical Risk** and **Security Risk**.
+
+6.  **Categorize and Elaborate on Risks:** Now, I'll map the identified points to the specified risk types, determine severity, and write descriptions.
+
+    *   **Requirement Risk:** Ambiguity around "personalized recommendations" and "complex promotions" (mentioned in PRD risks but not detailed in FRDs).
+    *   **Scope Creep Risk:** The vague nature of "personalized recommendations" and "complex promotions," coupled with market trends (AI/ML), could lead to feature requests beyond initial scope.
+    *   **Project Management Risk:** High number of "High" priority FRDs with significant technical complexity (real-time, cross-device sync, integrations) suggests potential for delays if not managed meticulously.
+    *   **Stakeholder Risk:** Balancing shopper (UX, security) and merchant (insights, promotions, efficiency) goals could lead to conflicting priorities.
+    *   **Technical Risk:**
+        *   *Complexity & Integration:* Real-time inventory (FR-5), cross-device persistence (FR-2), "Save for Later" (FR-3), external integrations (payment, shipping, tax - FR-4, PRD risks).
+        *   *Performance & Scalability:* Maintaining speed under high load with real-time updates (PRD risks, FR-5).
+        *   *Security Vulnerabilities:* Protecting sensitive data, expanding attack surface (PRD risks, recent insights).
+    *   **Quality Risk:**
+        *   *User Experience Issues:* Poor design, slowness, confusion leading to abandonment (PRD risks).
+        *   *Data Inconsistency:* Challenges with persistent carts and real-time inventory updates.
+    *   **Market/Strategic Risk:**
+        *   *Competitive Disadvantage:* Not keeping pace with AI/ML, advanced analytics, seamless checkout, diverse payment options (recent insights).
+        *   *Regulatory Compliance (Data Privacy):* Explicitly mentioned in PRD (GDPR, CCPA) and relevant for persistent carts and personalized features.
+    *   **Communication Risk:** High complexity and multiple integrations require excellent communication to avoid misunderstandings.
+
+7.  **Assign Severity and Law:**
+    *   **High Severity:** Risks directly impacting conversion, abandonment, security, legal compliance, or core functionality.
+    *   **Medium Severity:** Risks leading to significant delays, rework, or moderate user/merchant dissatisfaction.
+    *   **Low Severity:** (None identified as critical for this project).
+    *   **Law:** "DDPA" for any data protection-related risks (Security, Regulatory Compliance), "null" otherwise.
+
+8.  **Format Output:** Ensure the detailed explanation comes first, followed by the JSON array, adhering strictly to the specified structure and constraints. Double-check JSON validity.
+
+This systematic approach ensures all inputs are considered, risks are thoroughly analyzed, and the output meets all specified requirements.
 
 ### Identified Risks
 
@@ -188,621 +181,763 @@ Now, I will structure the output as requested.
 #### US-1: As an Online Shopper, I want to add products to my cart so that I can purchase them later.
 
 **Test Cases:**
-##### TC-1.1.1: Verify adding a single product to the cart from a product detail page.
+##### TC-001: Add a single in-stock product to the cart.
 
 - **Type:** Positive
 - **Steps:**
-  1. Navigate to a product detail page.
-  1. Select quantity '1'.
+  1. Navigate to a product detail page for an in-stock item.
   1. Click 'Add to Cart' button.
-- **Expected Result:** The product is added to the cart, and the cart icon/count updates to '1'.
+  1. Verify cart icon/count updates.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The product is successfully added to the cart, and the cart summary reflects the new item and updated subtotal.
 
-##### TC-1.1.2: Verify adding multiple units of the same product to the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Navigate to a product detail page.
-  1. Select quantity '3'.
-  1. Click 'Add to Cart' button.
-- **Expected Result:** The product is added to the cart with quantity '3', and the cart icon/count updates.
-
-##### TC-1.1.3: Verify adding different products to the cart.
+##### TC-002: Add multiple different in-stock products to the cart.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add Product A (quantity 1) to cart.
-  1. Navigate to Product B detail page.
-  1. Add Product B (quantity 1) to cart.
-- **Expected Result:** Both Product A and Product B are in the cart, and the cart icon/count reflects total unique items or total quantity.
+  1. Navigate to Product A detail page (in-stock).
+  1. Click 'Add to Cart'.
+  1. Navigate to Product B detail page (in-stock).
+  1. Click 'Add to Cart'.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** Both Product A and Product B are in the cart with correct quantities and the subtotal is updated accordingly.
 
-#### US-2: As an Online Shopper, I want to update the quantity of items in my cart so that I can buy the desired amount.
-
-**Test Cases:**
-##### TC-1.2.1: Verify increasing the quantity of an item in the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (quantity 1) to cart.
-  1. Navigate to the cart page.
-  1. Increase quantity of Product A from 1 to 3 using the quantity selector.
-- **Expected Result:** The quantity of Product A updates to 3, and the cart subtotal/total recalculates correctly.
-
-##### TC-1.2.2: Verify decreasing the quantity of an item in the cart (but not to zero).
+##### TC-003: Add the same product multiple times to the cart.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add Product A (quantity 3) to cart.
-  1. Navigate to the cart page.
-  1. Decrease quantity of Product A from 3 to 1 using the quantity selector.
-- **Expected Result:** The quantity of Product A updates to 1, and the cart subtotal/total recalculates correctly.
+  1. Navigate to a product detail page for an in-stock item.
+  1. Click 'Add to Cart'.
+  1. Click 'Add to Cart' again for the same product.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The product's quantity in the cart is increased to 2, and the subtotal reflects the updated quantity.
 
-##### TC-1.2.3: Verify decreasing the quantity of an item to 1.
-
-- **Type:** Edge
-- **Steps:**
-  1. Add Product A (quantity 2) to cart.
-  1. Navigate to the cart page.
-  1. Decrease quantity of Product A from 2 to 1.
-- **Expected Result:** The quantity of Product A updates to 1, and the cart subtotal/total recalculates correctly.
-
-#### US-3: As an Online Shopper, I want to remove items from my cart so that I only purchase what I need.
-
-**Test Cases:**
-##### TC-1.3.1: Verify removing a single item from the cart.
+##### TC-004: Add a product to the cart from a product listing page.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add Product A and Product B to cart.
-  1. Navigate to the cart page.
-  1. Click 'Remove' or 'Delete' button for Product A.
-- **Expected Result:** Product A is removed from the cart, and the cart subtotal/total recalculates correctly. Product B remains.
-
-##### TC-1.3.2: Verify removing the last item from the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (quantity 1) to cart.
-  1. Navigate to the cart page.
-  1. Click 'Remove' or 'Delete' button for Product A.
-- **Expected Result:** Product A is removed, and the cart becomes empty. The cart subtotal/total displays 0.
-
-#### US-4: As an Online Shopper, I want my cart display to update immediately after making changes so that I always see the correct items and totals.
-
-**Test Cases:**
-##### TC-1.4.1: Verify cart UI updates immediately after adding an item.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A to cart from PDP.
-  1. Observe cart icon/mini-cart.
-- **Expected Result:** The cart icon/mini-cart updates immediately to reflect the added item and new quantity/total.
-
-##### TC-1.4.2: Verify cart UI updates immediately after changing item quantity.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (qty 1) to cart.
-  1. Navigate to cart page.
-  1. Increase quantity of Product A to 2.
-  1. Observe cart item quantity and subtotal.
-- **Expected Result:** The quantity for Product A and the cart subtotal/total update immediately without page refresh.
-
-##### TC-1.4.3: Verify cart UI updates immediately after removing an item.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A and Product B to cart.
-  1. Navigate to cart page.
-  1. Remove Product A.
-  1. Observe cart contents and subtotal.
-- **Expected Result:** Product A is immediately removed from the display, and the cart subtotal/total updates without page refresh.
-
-#### US-5: As an Online Shopper, I want to be prevented from adding items with zero or negative quantity so that I don't make invalid selections.
-
-**Test Cases:**
-##### TC-1.5.1: Attempt to add a product with quantity 0.
-
-- **Type:** Negative
-- **Steps:**
-  1. Navigate to a product detail page.
-  1. Manually enter quantity '0' (if allowed by UI, otherwise attempt to decrease to 0).
-  1. Click 'Add to Cart' button.
-- **Expected Result:** The system prevents adding the item, displays an error message (e.g., 'Quantity must be at least 1'), or takes no action.
-
-##### TC-1.5.2: Attempt to add a product with a negative quantity.
-
-- **Type:** Negative
-- **Steps:**
-  1. Navigate to a product detail page.
-  1. Manually enter quantity '-1' (if allowed by UI).
-  1. Click 'Add to Cart' button.
-- **Expected Result:** The system prevents adding the item, displays an error message (e.g., 'Invalid quantity'), or takes no action.
-
-#### US-6: As an Online Shopper, I want to see all items in my cart with their details so that I can review my selections.
-
-**Test Cases:**
-##### TC-2.1.1: Verify display of a single item in the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (qty 1) to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** Product A is displayed with its name, image, individual price, and quantity '1'.
-
-##### TC-2.1.2: Verify display of multiple unique items in the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (qty 1) and Product B (qty 1) to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** Both Product A and Product B are displayed as separate line items, each with their respective name, image, price, and quantity.
-
-##### TC-2.1.3: Verify display of multiple quantities of the same item in the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (qty 3) to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** Product A is displayed as a single line item with quantity '3', name, image, and individual price.
-
-#### US-7: As an Online Shopper, I want to see an accurate subtotal, estimated shipping, and grand total so that I know the full cost before checkout.
-
-**Test Cases:**
-##### TC-2.2.1: Verify subtotal calculation for a single item.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (price $10, qty 1) to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** The subtotal displayed is $10.00.
-
-##### TC-2.2.2: Verify subtotal calculation for multiple items with different quantities.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (price $10, qty 2) and Product B (price $15, qty 1) to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** The subtotal displayed is $35.00 (2*10 + 1*15).
-
-##### TC-2.2.3: Verify subtotal for an empty cart.
-
-- **Type:** Edge
-- **Steps:**
-  1. Ensure cart is empty.
-  1. Navigate to the cart page.
-- **Expected Result:** The subtotal displayed is $0.00.
-
-##### TC-2.3.1: Verify estimated shipping cost for a logged-in user with a saved address.
-
-- **Type:** Positive
-- **Steps:**
-  1. Log in as a user with a saved shipping address.
-  1. Add items to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** An estimated shipping cost is displayed based on the user's address, with a clear 'estimate' label.
-
-##### TC-2.3.2: Verify estimated shipping cost for a guest user (default).
-
-- **Type:** Positive
-- **Steps:**
-  1. Browse as a guest user.
-  1. Add items to cart.
-  1. Navigate to the cart page.
-- **Expected Result:** A default estimated shipping cost is displayed, with a clear 'estimate' label.
-
-##### TC-2.4.1: Verify grand total calculation with subtotal and estimated shipping.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (price $10, qty 1) to cart (subtotal $10).
-  1. Assume estimated shipping is $5.
-  1. Navigate to the cart page.
-- **Expected Result:** The grand total displayed is $15.00 (subtotal + shipping).
-
-##### TC-2.4.2: Verify grand total calculation with subtotal, estimated shipping, and applicable taxes (if calculated at this stage).
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (price $10, qty 1) to cart (subtotal $10).
-  1. Assume estimated shipping is $5 and tax is $1 (10% of subtotal).
-  1. Navigate to the cart page.
-- **Expected Result:** The grand total displayed is $16.00 (subtotal + shipping + tax).
-
-##### TC-2.5.1: Verify all price calculations are accurate and reflect current product pricing.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (price $10, qty 2) and Product B (price $15, qty 1) to cart.
-  1. Verify individual item totals (Product A: $20, Product B: $15).
-  1. Verify subtotal ($35).
-  1. Verify grand total (subtotal + shipping + tax).
-- **Expected Result:** All displayed prices and totals are mathematically correct based on current product pricing.
-
-##### TC-2.5.2: Verify calculations with decimal prices.
-
-- **Type:** Edge
-- **Steps:**
-  1. Add Product C (price $9.99, qty 2) to cart.
-  1. Verify individual item total ($19.98).
-  1. Verify subtotal ($19.98).
-  1. Verify grand total (subtotal + shipping + tax).
-- **Expected Result:** All displayed prices and totals are mathematically correct with decimal values.
-
-##### TC-2.5.3: Verify cart reflects updated product price after it has been added.
-
-- **Type:** Edge
-- **Steps:**
-  1. Add Product A (original price $10) to cart.
-  1. Admin updates Product A price to $12.
-  1. Refresh cart page or revisit later.
-- **Expected Result:** Product A's price in the cart updates to $12, and all totals recalculate accordingly.
-
-#### US-8: As an Online Shopper, I want to apply discount codes to my cart so that I can save money on my purchase.
-
-**Test Cases:**
-##### TC-3.1.1: Verify applying a valid discount code.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add items to cart.
-  1. Navigate to cart page.
-  1. Enter a valid discount code (e.g., 'SAVE10') into the discount field.
-  1. Click 'Apply' button.
-- **Expected Result:** The discount is applied, and the cart total is updated. A success message is displayed.
-
-#### US-9: As an Online Shopper, I want to see the discount clearly applied and the total updated so that I understand the final price.
-
-**Test Cases:**
-##### TC-3.2.1: Verify cart total updates for a percentage-based discount.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add items totaling $100 to cart.
-  1. Apply a valid 10% discount code.
-- **Expected Result:** The cart total is reduced by $10, and a 'Discount' line item showing '-$10.00' is displayed.
-
-##### TC-3.2.2: Verify cart total updates for a fixed-amount discount.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add items totaling $100 to cart.
-  1. Apply a valid $15 fixed-amount discount code.
-- **Expected Result:** The cart total is reduced by $15, and a 'Discount' line item showing '-$15.00' is displayed.
-
-#### US-10: As an Online Shopper, I want to be notified if a discount code is invalid so that I can correct it or try another.
-
-**Test Cases:**
-##### TC-3.3.1: Attempt to apply an invalid discount code.
-
-- **Type:** Negative
-- **Steps:**
-  1. Add items to cart.
-  1. Enter a non-existent code (e.g., 'INVALIDCODE') into the discount field.
-  1. Click 'Apply' button.
-- **Expected Result:** An error message 'Invalid discount code' or similar is displayed.
-
-##### TC-3.3.2: Attempt to apply an expired discount code.
-
-- **Type:** Negative
-- **Steps:**
-  1. Add items to cart.
-  1. Enter an expired discount code into the discount field.
-  1. Click 'Apply' button.
-- **Expected Result:** An error message 'Discount code has expired' or similar is displayed.
-
-##### TC-3.3.3: Attempt to apply a discount code with minimum purchase requirement not met.
-
-- **Type:** Negative
-- **Steps:**
-  1. Add items totaling $20 to cart.
-  1. Apply a discount code requiring a minimum purchase of $50.
-- **Expected Result:** An error message 'Minimum purchase of $50 required' or similar is displayed.
-
-##### TC-3.3.4: Attempt to apply a discount code that does not apply to items in the cart.
-
-- **Type:** Negative
-- **Steps:**
-  1. Add only 'Electronics' category items to cart.
-  1. Apply a discount code valid only for 'Apparel' category.
-- **Expected Result:** An error message 'Discount not applicable to items in your cart' or similar is displayed.
-
-#### US-11: As an Online Shopper, I want to be able to remove an applied discount so that I can change my mind or apply a different one.
-
-**Test Cases:**
-##### TC-3.5.1: Verify removing an applied discount code.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add items to cart.
-  1. Apply a valid discount code.
-  1. Click 'Remove' or 'X' button next to the applied discount.
-- **Expected Result:** The discount is removed, and the cart total reverts to its pre-discount state. The discount line item disappears.
-
-##### TC-3.5.2: Verify removing a discount from an empty cart (no effect).
-
-- **Type:** Edge
-- **Steps:**
-  1. Apply a valid discount code to a cart with items.
-  1. Remove all items from the cart.
-  1. Attempt to remove the discount (if UI allows).
-- **Expected Result:** The discount is removed, and the cart total remains $0.00. No error is displayed.
-
-#### US-12: As an Online Shopper, I want to know if an item is out of stock or low in stock before or when adding it to my cart so that I don't try to purchase unavailable items.
-
-**Test Cases:**
-##### TC-4.1.1: Verify adding an in-stock item to the cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Navigate to a product detail page for an item with sufficient stock.
-  1. Add item to cart.
-- **Expected Result:** Item is successfully added to the cart.
-
-##### TC-4.1.2: Attempt to add an out-of-stock item to the cart.
+  1. Navigate to a product listing page.
+  1. Locate an in-stock product.
+  1. Click 'Add to Cart' button directly from the listing (if available).
+  1. Verify cart icon/count updates.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The product is successfully added to the cart, and the cart summary reflects the new item and updated subtotal.
+
+##### TC-005: Attempt to add an out-of-stock product to the cart.
 
 - **Type:** Negative
 - **Steps:**
   1. Navigate to a product detail page for an out-of-stock item.
-  1. Attempt to add item to cart.
-- **Expected Result:** The 'Add to Cart' button is disabled or an error message 'Out of Stock' is displayed, preventing the item from being added.
+  1. Click 'Add to Cart' button.
+- **Expected Result:** The system prevents adding the item and displays an 'Out of Stock' message or similar notification.
 
-#### US-13: As an Online Shopper, I want my cart quantity to automatically adjust if I request more than available stock so that I can still purchase the maximum available.
+##### TC-006: Add product with special characters in its name.
+
+- **Type:** Edge
+- **Steps:**
+  1. Navigate to a product detail page for an in-stock item with special characters (e.g., 'Product #1 & Co.').
+  1. Click 'Add to Cart'.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The product is successfully added to the cart, and its name is displayed correctly.
+
+#### US-2: As an Online Shopper, I want to modify the quantity of items in my cart so that I can adjust my purchase.
 
 **Test Cases:**
-##### TC-4.3.1: Attempt to add a quantity exceeding available stock.
-
-- **Type:** Negative
-- **Steps:**
-  1. Product A has 5 units in stock.
-  1. Attempt to add 10 units of Product A from PDP.
-- **Expected Result:** A notification 'Only 5 units available, quantity adjusted' is displayed, and 5 units of Product A are added to the cart.
-
-##### TC-4.3.2: Attempt to update quantity in cart to exceed available stock.
-
-- **Type:** Negative
-- **Steps:**
-  1. Product A has 5 units in stock.
-  1. Add 3 units of Product A to cart.
-  1. On cart page, attempt to increase quantity of Product A to 7.
-- **Expected Result:** A notification 'Only 5 units available, quantity adjusted' is displayed, and the quantity in the cart for Product A is updated to 5.
-
-#### US-14: As an Online Shopper, I want inventory to be re-checked before checkout so that I don't encounter issues during payment.
-
-**Test Cases:**
-##### TC-4.4.1: Verify inventory check before checkout for available items.
+##### TC-007: Increase the quantity of an item in the cart.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add in-stock items to cart.
-  1. Proceed to checkout.
-- **Expected Result:** Checkout process proceeds smoothly without inventory warnings.
+  1. Add an item to the cart with quantity 1.
+  1. Navigate to the shopping cart page.
+  1. Locate the item and increase its quantity to 2 using the quantity selector/button.
+- **Expected Result:** The item's quantity updates to 2, and the item's price and cart subtotal update dynamically.
 
-##### TC-4.4.2: Verify inventory check before checkout for an item that became out of stock.
+##### TC-008: Decrease the quantity of an item in the cart.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item to the cart with quantity 2.
+  1. Navigate to the shopping cart page.
+  1. Locate the item and decrease its quantity to 1 using the quantity selector/button.
+- **Expected Result:** The item's quantity updates to 1, and the item's price and cart subtotal update dynamically.
+
+##### TC-009: Decrease quantity of an item to zero (should remove item).
+
+- **Type:** Edge
+- **Steps:**
+  1. Add an item to the cart with quantity 1.
+  1. Navigate to the shopping cart page.
+  1. Locate the item and decrease its quantity to 0 (or click remove if quantity 1 is minimum).
+- **Expected Result:** The item is removed from the cart, and the cart subtotal updates accordingly.
+
+##### TC-010: Attempt to increase quantity beyond available stock.
 
 - **Type:** Negative
 - **Steps:**
-  1. Add Product A (in stock) to cart.
-  1. Simulate Product A going out of stock (e.g., via admin panel or another user purchase).
-  1. Proceed to checkout.
-- **Expected Result:** A message 'Product A is now out of stock and has been removed from your cart' is displayed, and the user is prevented from purchasing it.
+  1. Add an item to the cart with quantity 1, where available stock is 2.
+  1. Navigate to the shopping cart page.
+  1. Attempt to increase the quantity to 3.
+- **Expected Result:** The system prevents increasing the quantity beyond available stock and displays a notification (e.g., 'Only 2 left in stock'). The quantity remains at 2.
 
-##### TC-4.4.3: Verify inventory check before checkout for an item whose quantity decreased.
+##### TC-011: Enter a non-numeric quantity for an item.
 
 - **Type:** Negative
 - **Steps:**
-  1. Add Product A (qty 5, stock 5) to cart.
-  1. Simulate Product A stock decreasing to 3 (e.g., another user buys 2).
-  1. Proceed to checkout.
-- **Expected Result:** A message 'Only 3 units of Product A are now available, quantity adjusted' is displayed, and the cart quantity for Product A is updated to 3.
+  1. Add an item to the cart.
+  1. Navigate to the shopping cart page.
+  1. Attempt to enter 'abc' or '1.5' into the quantity input field.
+- **Expected Result:** The system either prevents non-numeric input, reverts to the last valid quantity, or displays an error message.
 
-#### US-15: As an Online Shopper, I want to see clear indicators for low or out-of-stock items in my cart.
+##### TC-012: Enter a negative quantity for an item.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add an item to the cart.
+  1. Navigate to the shopping cart page.
+  1. Attempt to enter '-1' into the quantity input field.
+- **Expected Result:** The system prevents negative input, reverts to the last valid quantity, or displays an error message.
+
+##### TC-013: Modify quantity of an item that becomes out of stock.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add an item to the cart with quantity 1.
+  1. Simulate the item going out of stock in the backend.
+  1. Navigate to the shopping cart page.
+  1. Attempt to increase the quantity of the now out-of-stock item.
+- **Expected Result:** The system prevents quantity modification and displays an 'Out of Stock' notification for the item.
+
+#### US-3: As an Online Shopper, I want to remove items from my cart so that I only purchase what I need.
 
 **Test Cases:**
-##### TC-4.5.1: Verify 'low stock' indicator for items in cart.
+##### TC-014: Remove a single item from the cart.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add Product A (stock 3, low stock threshold 5) to cart.
-  1. Navigate to cart page.
-- **Expected Result:** Product A in the cart displays a 'Only 3 left!' or similar 'low stock' indicator.
+  1. Add two different items to the cart.
+  1. Navigate to the shopping cart page.
+  1. Click the 'Remove' button/icon for one of the items.
+- **Expected Result:** The selected item is removed from the cart, and the cart subtotal updates dynamically. The other item remains.
 
-##### TC-4.5.2: Verify 'out of stock' indicator for items in cart.
+##### TC-015: Remove all items from the cart.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add Product A (in stock) to cart.
-  1. Simulate Product A going out of stock.
-  1. Refresh cart page.
-- **Expected Result:** Product A in the cart is clearly marked as 'Out of Stock' and potentially disabled for purchase.
+  1. Add two different items to the cart.
+  1. Navigate to the shopping cart page.
+  1. Click the 'Remove' button/icon for the first item.
+  1. Click the 'Remove' button/icon for the second item.
+- **Expected Result:** All items are removed from the cart, and the cart page displays an 'empty cart' message. Subtotal is 0.
 
-#### US-16: As a logged-in Online Shopper, I want my cart to be saved across sessions and devices so that I can continue my shopping experience seamlessly.
+##### TC-016: Remove an item that was previously out of stock.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item to the cart.
+  1. Simulate the item going out of stock.
+  1. Navigate to the shopping cart page (item should be flagged as OOS).
+  1. Click the 'Remove' button/icon for the out-of-stock item.
+- **Expected Result:** The out-of-stock item is successfully removed from the cart.
+
+#### US-4: As an Online Shopper, I want the cart subtotal and item prices to update dynamically so that I always see the correct total.
 
 **Test Cases:**
-##### TC-5.1.1: Verify persistent cart for logged-in user on the same device.
+##### TC-017: Verify subtotal updates after adding an item.
 
 - **Type:** Positive
 - **Steps:**
-  1. Log in.
-  1. Add Product A to cart.
+  1. Ensure cart is empty.
+  1. Note initial subtotal (should be 0).
+  1. Add an item with price $10 to the cart.
+  1. Verify the subtotal displayed on the cart page.
+- **Expected Result:** The subtotal updates to $10.
+
+##### TC-018: Verify subtotal updates after increasing quantity.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item with price $10 and quantity 1 to the cart.
+  1. Note current subtotal ($10).
+  1. Increase the item's quantity to 2.
+  1. Verify the subtotal displayed on the cart page.
+- **Expected Result:** The subtotal updates to $20.
+
+##### TC-019: Verify subtotal updates after decreasing quantity.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item with price $10 and quantity 2 to the cart.
+  1. Note current subtotal ($20).
+  1. Decrease the item's quantity to 1.
+  1. Verify the subtotal displayed on the cart page.
+- **Expected Result:** The subtotal updates to $10.
+
+##### TC-020: Verify subtotal updates after removing an item.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add two items: Item A ($10) and Item B ($15). Subtotal is $25.
+  1. Remove Item B from the cart.
+  1. Verify the subtotal displayed on the cart page.
+- **Expected Result:** The subtotal updates to $10.
+
+##### TC-021: Verify individual item price updates (e.g., due to bulk discount, if applicable).
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item with a bulk discount rule (e.g., 3 for $25, individual price $10).
+  1. Add 1 unit, verify price $10.
+  1. Increase quantity to 3, verify individual item price changes to $8.33 (25/3) and total for item is $25.
+- **Expected Result:** Individual item price and total for that item update according to discount rules.
+
+##### TC-022: Verify subtotal is 0 when the cart is empty.
+
+- **Type:** Edge
+- **Steps:**
+  1. Ensure the cart is empty.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The subtotal displayed is $0.00.
+
+#### US-5: As an Online Shopper, I want to be notified if an item is out of stock or becomes unavailable so that I don't try to purchase unavailable products.
+
+**Test Cases:**
+##### TC-023: Attempt to add an item that is initially out of stock.
+
+- **Type:** Negative
+- **Steps:**
+  1. Navigate to a product detail page for an item marked as 'Out of Stock'.
+  1. Click 'Add to Cart'.
+- **Expected Result:** The system prevents the addition and displays an 'Out of Stock' message.
+
+##### TC-024: Item in cart becomes out of stock before checkout.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add an in-stock item to the cart.
+  1. Simulate the item going out of stock in the backend.
+  1. Navigate to or refresh the shopping cart page.
+- **Expected Result:** The item in the cart is flagged as 'Out of Stock' with a clear notification, and the user is prevented from proceeding to checkout.
+
+##### TC-025: Item in cart has limited stock, user tries to add more than available.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add an item to the cart with quantity 1, where available stock is 2.
+  1. Attempt to increase the quantity to 3.
+- **Expected Result:** The system prevents increasing the quantity beyond available stock and displays a message like 'Only 2 left in stock'.
+
+##### TC-026: Item in cart has limited stock, user adjusts quantity to available stock.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item to the cart with quantity 5, where available stock is 3.
+  1. Navigate to the shopping cart page (system should prompt to adjust quantity).
+  1. Adjust the quantity to 3.
+- **Expected Result:** The quantity is successfully adjusted to 3, and the cart subtotal updates. The warning message clears.
+
+#### US-6: As a logged-in Online Shopper, I want my cart to be saved across sessions so that I don't lose my selected items.
+
+**Test Cases:**
+##### TC-027: Add items as logged-in user, log out, log back in, verify cart persistence.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a registered user.
+  1. Add 2-3 items to the cart.
   1. Log out.
-  1. Log back in with the same account.
-- **Expected Result:** Product A is still in the cart.
+  1. Log back in with the same user account.
+- **Expected Result:** The cart displays all items that were added before logging out.
 
-##### TC-5.1.2: Verify persistent cart for logged-in user on a different device.
-
-- **Type:** Positive
-- **Steps:**
-  1. Log in on Device 1.
-  1. Add Product A to cart on Device 1.
-  1. Log in on Device 2 with the same account.
-- **Expected Result:** Product A is present in the cart on Device 2.
-
-#### US-17: As a guest Online Shopper, I want my cart to persist for a reasonable time so that I don't lose my selections if I close my browser.
-
-**Test Cases:**
-##### TC-5.2.1: Verify guest cart persistence within the defined period (e.g., 24 hours).
+##### TC-028: Add items as logged-in user, close browser, reopen, log back in, verify cart persistence.
 
 - **Type:** Positive
 - **Steps:**
-  1. As a guest, add Product A to cart.
-  1. Close the browser.
-  1. Reopen the browser within 24 hours and navigate to the site.
-- **Expected Result:** Product A is still in the cart.
+  1. Log in as a registered user.
+  1. Add 2-3 items to the cart.
+  1. Close the browser completely.
+  1. Reopen the browser and navigate to the e-commerce site.
+  1. Log back in with the same user account.
+- **Expected Result:** The cart displays all items that were added before closing the browser.
 
-##### TC-5.2.2: Verify guest cart expiration after the defined period (e.g., >24 hours).
+##### TC-029: Add items as guest, then log in, verify guest items merge with existing logged-in cart (if any).
+
+- **Type:** Positive
+- **Steps:**
+  1. As a guest user, add Item A to the cart.
+  1. Log in as a registered user (who might have Item B already in their persistent cart).
+- **Expected Result:** The cart displays both Item A (from guest session) and Item B (from persistent cart), or if no existing persistent cart, Item A becomes the logged-in cart.
+
+##### TC-030: Logged-in user adds items, then logs out and another user logs in on the same device, verify cart is empty for new user.
 
 - **Type:** Negative
 - **Steps:**
-  1. As a guest, add Product A to cart.
-  1. Wait for more than 24 hours.
-  1. Reopen the browser and navigate to the site.
+  1. Log in as User A.
+  1. Add Item A to cart.
+  1. Log out User A.
+  1. Log in as User B on the same device.
+- **Expected Result:** User B's cart displays only their own persistent items (or is empty if they have none), not Item A from User A.
+
+#### US-7: As a logged-in Online Shopper, I want my cart to be synchronized across all my devices so that I can shop seamlessly.
+
+**Test Cases:**
+##### TC-031: Add items on desktop, log in, then log in on mobile, verify cart syncs.
+
+- **Type:** Positive
+- **Steps:**
+  1. On a desktop browser, log in as a registered user.
+  1. Add Item A to the cart.
+  1. On a mobile device, log in with the same user account.
+- **Expected Result:** The cart on the mobile device displays Item A.
+
+##### TC-032: Add items on mobile, log in, then log in on desktop, verify cart syncs.
+
+- **Type:** Positive
+- **Steps:**
+  1. On a mobile device, log in as a registered user.
+  1. Add Item B to the cart.
+  1. On a desktop browser, log in with the same user account.
+- **Expected Result:** The cart on the desktop browser displays Item B.
+
+##### TC-033: Add items on desktop, then add different items on mobile (logged in on both), verify merged cart on both devices after refresh.
+
+- **Type:** Positive
+- **Steps:**
+  1. On desktop, log in and add Item A.
+  1. On mobile, log in and add Item B.
+  1. Refresh the cart page on both desktop and mobile.
+- **Expected Result:** Both desktop and mobile carts display both Item A and Item B.
+
+##### TC-034: Remove item on one device, verify removal on other device.
+
+- **Type:** Positive
+- **Steps:**
+  1. On desktop, log in and add Item A and Item B to cart.
+  1. On mobile, log in and verify Item A and Item B are present.
+  1. On desktop, remove Item A from the cart.
+  1. Refresh the cart page on the mobile device.
+- **Expected Result:** Item A is removed from the cart on the mobile device.
+
+#### US-8: As a guest Online Shopper, I want my cart to be saved for a limited time so that I can continue shopping without logging in immediately.
+
+**Test Cases:**
+##### TC-035: Add items as guest, close browser, reopen within defined duration, verify cart persistence.
+
+- **Type:** Positive
+- **Steps:**
+  1. As a guest user, add 2-3 items to the cart.
+  1. Close the browser completely.
+  1. Reopen the browser and navigate to the e-commerce site within 24 hours (or defined duration).
+- **Expected Result:** The cart displays all items that were added before closing the browser.
+
+##### TC-036: Add items as guest, clear browser cookies, verify cart is empty.
+
+- **Type:** Negative
+- **Steps:**
+  1. As a guest user, add 2-3 items to the cart.
+  1. Clear browser cookies.
+  1. Navigate to the e-commerce site.
 - **Expected Result:** The cart is empty.
 
-#### US-18: As an Online Shopper, if I log in with a guest cart, I want my items to merge with my account cart so that I don't lose any selections.
-
-**Test Cases:**
-##### TC-5.3.1: Verify guest cart merges with an empty account cart upon login.
-
-- **Type:** Positive
-- **Steps:**
-  1. As a guest, add Product A (qty 1) to cart.
-  1. Log in to an account with an empty cart.
-- **Expected Result:** The account cart contains Product A (qty 1).
-
-##### TC-5.3.2: Verify guest cart merges with an account cart containing different items.
-
-- **Type:** Positive
-- **Steps:**
-  1. As a guest, add Product A (qty 1) to cart.
-  1. Log in to an account that already has Product B (qty 1) in its cart.
-- **Expected Result:** The account cart contains both Product A (qty 1) and Product B (qty 1).
-
-##### TC-5.3.3: Verify guest cart merges with an account cart containing the same item (quantities sum).
-
-- **Type:** Positive
-- **Steps:**
-  1. As a guest, add Product A (qty 1) to cart.
-  1. Log in to an account that already has Product A (qty 2) in its cart.
-- **Expected Result:** The account cart contains Product A (qty 3).
-
-#### US-19: As an Online Shopper, I want persistent cart items to be subject to real-time inventory checks upon my return.
-
-**Test Cases:**
-##### TC-5.4.1: Verify persistent cart item marked out of stock upon user return.
-
-- **Type:** Positive
-- **Steps:**
-  1. Log in, add Product A to cart.
-  1. Log out.
-  1. Simulate Product A going out of stock.
-  1. Log back in.
-- **Expected Result:** Product A is in the cart but clearly marked as 'Out of Stock' and cannot be purchased.
-
-##### TC-5.4.2: Verify persistent cart item quantity adjusted upon user return due to reduced stock.
-
-- **Type:** Positive
-- **Steps:**
-  1. Log in, add Product A (qty 5, stock 5) to cart.
-  1. Log out.
-  1. Simulate Product A stock decreasing to 3.
-  1. Log back in.
-- **Expected Result:** Product A is in the cart, its quantity is adjusted to 3, and a notification about the adjustment is displayed.
-
-#### US-20: As an Online Shopper, I want to move items from my active cart to a 'Save for Later' list so that I can consider them without cluttering my current purchase.
-
-**Test Cases:**
-##### TC-6.1.1: Verify 'Save for Later' option is available for cart items.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A to cart.
-  1. Navigate to cart page.
-- **Expected Result:** A 'Save for Later' button or link is visible next to Product A.
-
-##### TC-6.2.1: Verify moving an item to 'Save for Later' removes it from active cart and updates total.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A (price $10) and Product B (price $20) to cart.
-  1. Move Product A to 'Save for Later'.
-- **Expected Result:** Product A is removed from the active cart. The cart total updates from $30 to $20. Product A appears in the 'Save for Later' section.
-
-##### TC-6.2.2: Verify moving the last item from active cart to 'Save for Later'.
-
-- **Type:** Edge
-- **Steps:**
-  1. Add Product A (price $10) to cart.
-  1. Move Product A to 'Save for Later'.
-- **Expected Result:** The active cart becomes empty, displaying a $0.00 total. Product A appears in the 'Save for Later' section.
-
-#### US-21: As an Online Shopper, I want saved items to be clearly displayed so that I can easily find them.
-
-**Test Cases:**
-##### TC-6.3.1: Verify saved items are displayed in a separate, labeled section.
-
-- **Type:** Positive
-- **Steps:**
-  1. Add Product A to cart, then move to 'Save for Later'.
-  1. Navigate to cart page.
-- **Expected Result:** Product A is displayed under a clearly labeled 'Save for Later' section, separate from active cart items.
-
-#### US-22: As an Online Shopper, I want to easily move items from 'Save for Later' back to my active cart so that I can purchase them when ready.
-
-**Test Cases:**
-##### TC-6.4.1: Verify moving an available item from 'Save for Later' back to active cart.
-
-- **Type:** Positive
-- **Steps:**
-  1. Move Product A (in stock) to 'Save for Later'.
-  1. Click 'Move to Cart' or similar option for Product A in 'Save for Later' section.
-- **Expected Result:** Product A is moved from 'Save for Later' to the active cart, and the cart total updates accordingly.
-
-##### TC-6.4.2: Attempt to move an out-of-stock item from 'Save for Later' to active cart.
+##### TC-037: Add items as guest, wait beyond defined duration, verify cart is empty.
 
 - **Type:** Negative
 - **Steps:**
-  1. Move Product A (in stock) to 'Save for Later'.
-  1. Simulate Product A going out of stock.
-  1. Attempt to move Product A from 'Save for Later' to active cart.
-- **Expected Result:** A message 'Product A is currently out of stock' is displayed, and the item is not moved to the active cart.
+  1. As a guest user, add 2-3 items to the cart.
+  1. Wait for more than 24 hours (or defined duration).
+  1. Navigate to the e-commerce site.
+- **Expected Result:** The cart is empty.
 
-##### TC-6.4.3: Attempt to move an item from 'Save for Later' where requested quantity exceeds available stock.
+##### TC-038: Add items as guest, then log in, verify guest items are transferred to the user's account.
+
+- **Type:** Positive
+- **Steps:**
+  1. As a guest user, add Item A to the cart.
+  1. Click 'Log In' and log in as a registered user.
+- **Expected Result:** Item A is now part of the logged-in user's persistent cart.
+
+#### US-9: As an Online Shopper, I want to move items to a 'Save for Later' list so that I can consider them for future purchases without cluttering my current cart.
+
+**Test Cases:**
+##### TC-039: Move a single item from active cart to 'Save for Later'.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a user.
+  1. Add Item A to the active cart.
+  1. Navigate to the shopping cart page.
+  1. Click 'Save for Later' option for Item A.
+- **Expected Result:** Item A is removed from the active cart and appears in the 'Save for Later' section. Active cart subtotal updates.
+
+##### TC-040: Move multiple items from active cart to 'Save for Later'.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a user.
+  1. Add Item A and Item B to the active cart.
+  1. Navigate to the shopping cart page.
+  1. Click 'Save for Later' for Item A.
+  1. Click 'Save for Later' for Item B.
+- **Expected Result:** Both Item A and Item B are moved to 'Save for Later' section. Active cart is empty and subtotal is 0.
+
+##### TC-041: Verify cart subtotal updates after moving item to 'Save for Later'.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a user.
+  1. Add Item A ($10) and Item B ($15) to active cart (subtotal $25).
+  1. Move Item A to 'Save for Later'.
+- **Expected Result:** The active cart subtotal updates to $15.
+
+##### TC-042: Move an out-of-stock item to 'Save for Later'.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a user.
+  1. Add an item to cart, then simulate it going out of stock.
+  1. Navigate to cart page, item is flagged as OOS.
+  1. Click 'Save for Later' for the OOS item.
+- **Expected Result:** The out-of-stock item is successfully moved to 'Save for Later' and is still flagged as OOS in that section.
+
+#### US-10: As an Online Shopper, I want to move items from 'Save for Later' back to my active cart so that I can easily purchase them.
+
+**Test Cases:**
+##### TC-043: Move a single item from 'Save for Later' to active cart.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a user.
+  1. Move Item A to 'Save for Later'.
+  1. Navigate to the shopping cart page.
+  1. Locate Item A in 'Save for Later' section.
+  1. Click 'Move to Cart' option for Item A.
+- **Expected Result:** Item A is removed from 'Save for Later' and appears in the active cart. Active cart subtotal updates.
+
+##### TC-044: Move multiple items from 'Save for Later' to active cart.
+
+- **Type:** Positive
+- **Steps:**
+  1. Log in as a user.
+  1. Move Item A and Item B to 'Save for Later'.
+  1. Navigate to the shopping cart page.
+  1. Click 'Move to Cart' for Item A.
+  1. Click 'Move to Cart' for Item B.
+- **Expected Result:** Both Item A and Item B are moved to the active cart. 'Save for Later' section is empty.
+
+##### TC-045: Attempt to move an item from 'Save for Later' to cart when it's now out of stock.
 
 - **Type:** Negative
 - **Steps:**
-  1. Move Product A (qty 5, stock 5) to 'Save for Later'.
-  1. Simulate Product A stock decreasing to 3.
-  1. Attempt to move Product A (qty 5) from 'Save for Later' to active cart.
-- **Expected Result:** A message 'Only 3 units of Product A are available, quantity adjusted' is displayed, and 3 units of Product A are moved to the active cart.
+  1. Log in as a user.
+  1. Move Item A to 'Save for Later'.
+  1. Simulate Item A going out of stock.
+  1. Navigate to cart page, locate Item A in 'Save for Later'.
+  1. Click 'Move to Cart' for Item A.
+- **Expected Result:** The system prevents moving the item to the active cart and displays an 'Out of Stock' notification.
 
-#### US-23: As an Online Shopper, I want saved items to retain their original product details and be subject to inventory checks when moved back to the cart.
+##### TC-046: Attempt to move an item from 'Save for Later' to cart when active cart already contains the maximum allowed quantity (if applicable).
+
+- **Type:** Negative
+- **Steps:**
+  1. Log in as a user.
+  1. Add 5 units of Item A (max allowed is 5) to active cart.
+  1. Move 1 unit of Item A to 'Save for Later'.
+  1. Attempt to move the Item A from 'Save for Later' back to active cart.
+- **Expected Result:** The system prevents moving the item and displays a message about reaching maximum quantity.
+
+#### US-11: As a logged-in Online Shopper, I want my 'Save for Later' items to be persisted across sessions so that I don't lose them.
 
 **Test Cases:**
-##### TC-6.5.1: Verify original product details are retained when moving from 'Save for Later' to cart.
+##### TC-047: Logged-in user moves items to 'Save for Later', logs out, logs back in, verify persistence.
 
 - **Type:** Positive
 - **Steps:**
-  1. Add Product A (variant: Red, Size: M, price $10) to cart, then move to 'Save for Later'.
-  1. Move Product A back to active cart.
-- **Expected Result:** Product A appears in the active cart with variant 'Red', 'Size: M', and its *current* price.
+  1. Log in as a user.
+  1. Add Item A to active cart, then move it to 'Save for Later'.
+  1. Log out.
+  1. Log back in with the same user account.
+- **Expected Result:** Item A is still present in the 'Save for Later' section.
 
-##### TC-6.5.2: Verify inventory check occurs when moving item from 'Save for Later' to cart.
+##### TC-048: Logged-in user moves items to 'Save for Later' on one device, logs in on another device, verify sync.
 
 - **Type:** Positive
 - **Steps:**
-  1. Move Product A (in stock) to 'Save for Later'.
-  1. Simulate Product A going out of stock.
-  1. Attempt to move Product A from 'Save for Later' to active cart.
-- **Expected Result:** The system performs an inventory check, and a message 'Product A is currently out of stock' is displayed, preventing the move.
+  1. On desktop, log in and move Item A to 'Save for Later'.
+  1. On mobile, log in with the same user account.
+- **Expected Result:** Item A is present in the 'Save for Later' section on the mobile device.
 
-##### TC-6.5.3: Verify price update for saved item when moved back to cart.
+##### TC-049: Guest user attempts to use 'Save for Later' (assuming it's for logged-in users only).
+
+- **Type:** Negative
+- **Steps:**
+  1. As a guest user, add Item A to the cart.
+  1. Look for a 'Save for Later' option.
+- **Expected Result:** The 'Save for Later' option is not available or is disabled for guest users, or prompts them to log in.
+
+#### US-12: As an Online Shopper, I want to see a clear summary of my cart items so that I can review my order before checkout.
+
+**Test Cases:**
+##### TC-050: Verify product image, name, quantity, and price are displayed for a single item.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add a single item to the cart.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The cart page clearly displays the product's image, name, current quantity, and individual price.
+
+##### TC-051: Verify product image, name, quantity, and price are displayed for multiple items.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add three different items to the cart.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The cart page clearly displays the image, name, quantity, and price for each of the three items.
+
+##### TC-052: Verify display for an item with a long name/description.
 
 - **Type:** Edge
 - **Steps:**
-  1. Add Product A (price $10) to cart, then move to 'Save for Later'.
-  1. Admin updates Product A price to $12.
-  1. Move Product A from 'Save for Later' back to active cart.
-- **Expected Result:** Product A is added to the active cart with the *new* price of $12, and cart totals reflect this updated price.
+  1. Add an item with a very long product name to the cart.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The long product name is displayed correctly, either wrapping or truncating with an ellipsis, without breaking the layout.
+
+##### TC-053: Verify display for an item with no image (placeholder).
+
+- **Type:** Edge
+- **Steps:**
+  1. Add an item that does not have an associated image to the cart.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** A default placeholder image is displayed instead of a broken image icon.
+
+##### TC-054: Verify cart page is empty when no items are added.
+
+- **Type:** Edge
+- **Steps:**
+  1. Ensure the cart is empty.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The cart page displays a message indicating the cart is empty and suggests browsing products.
+
+#### US-13: As an Online Shopper, I want to see the subtotal, estimated tax, and shipping costs so that I understand the total cost before checkout.
+
+**Test Cases:**
+##### TC-055: Verify subtotal calculation for multiple items with different quantities.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add Item A ($10, Qty 2) and Item B ($15, Qty 1) to the cart.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The subtotal displayed is $35.00.
+
+##### TC-056: Verify estimated tax calculation (if applicable).
+
+- **Type:** Positive
+- **Steps:**
+  1. Add items to the cart (subtotal $50).
+  1. Ensure a shipping address is set for tax calculation (if required).
+  1. Navigate to the shopping cart page.
+- **Expected Result:** Estimated tax (e.g., 8% of $50 = $4.00) is displayed correctly.
+
+##### TC-057: Verify estimated shipping cost calculation (if applicable).
+
+- **Type:** Positive
+- **Steps:**
+  1. Add items to the cart.
+  1. Ensure a shipping address is set for shipping cost calculation.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** Estimated shipping cost (e.g., $5.00) is displayed correctly.
+
+##### TC-058: Verify total (subtotal + tax + shipping) calculation.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add items to the cart (subtotal $50, tax $4, shipping $5).
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The total displayed is $59.00.
+
+##### TC-059: Verify calculations update dynamically with quantity changes.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add Item A ($10, Qty 1) to cart (subtotal $10, tax $0.80, shipping $5, total $15.80).
+  1. Increase Item A's quantity to 2.
+  1. Verify subtotal, tax, shipping, and total.
+- **Expected Result:** Subtotal updates to $20, tax to $1.60, shipping might remain $5 or update, total updates accordingly.
+
+##### TC-060: Verify tax/shipping are not displayed if not applicable (e.g., digital goods, free shipping).
+
+- **Type:** Edge
+- **Steps:**
+  1. Add only digital goods to the cart (no shipping, no tax in some regions).
+  1. Navigate to the shopping cart page.
+- **Expected Result:** Tax and shipping cost sections are either not displayed or show '$0.00' and 'Free'.
+
+#### US-14: As an Online Shopper, I want a clear 'Proceed to Checkout' button so that I can easily start the purchase process.
+
+**Test Cases:**
+##### TC-061: Click 'Proceed to Checkout' with items in cart, verify navigation to checkout step 1.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add at least one item to the cart.
+  1. Navigate to the shopping cart page.
+  1. Click the 'Proceed to Checkout' button.
+- **Expected Result:** The user is successfully navigated to the first step of the checkout process (e.g., shipping information).
+
+##### TC-062: Verify 'Proceed to Checkout' button is prominent and clickable.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add at least one item to the cart.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The 'Proceed to Checkout' button is clearly visible, distinct, and clickable.
+
+##### TC-063: Attempt to click 'Proceed to Checkout' with an empty cart.
+
+- **Type:** Negative
+- **Steps:**
+  1. Ensure the cart is empty.
+  1. Navigate to the shopping cart page.
+  1. Attempt to click the 'Proceed to Checkout' button.
+- **Expected Result:** The 'Proceed to Checkout' button is disabled or clicking it displays a message indicating the cart is empty.
+
+##### TC-064: Attempt to click 'Proceed to Checkout' with out-of-stock items in cart.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add an item to the cart.
+  1. Simulate the item going out of stock.
+  1. Navigate to the shopping cart page (item flagged as OOS).
+  1. Click the 'Proceed to Checkout' button.
+- **Expected Result:** The system prevents checkout and displays an error message, prompting the user to remove or adjust out-of-stock items.
+
+#### US-15: As an Online Shopper, I want to be notified if an item in my cart becomes out of stock so that I can adjust my purchase.
+
+**Test Cases:**
+##### TC-065: Add item to cart, then item goes out of stock (simulated), verify notification on cart page.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an in-stock Item A to the cart.
+  1. Simulate Item A going out of stock in the backend.
+  1. Navigate to or refresh the shopping cart page.
+- **Expected Result:** Item A is clearly marked as 'Out of Stock' on the cart page with a visible notification.
+
+##### TC-066: Add multiple items, one goes out of stock, verify notification for specific item.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add Item A (in-stock) and Item B (in-stock) to the cart.
+  1. Simulate Item A going out of stock in the backend.
+  1. Navigate to or refresh the shopping cart page.
+- **Expected Result:** Only Item A is marked as 'Out of Stock' with a notification, while Item B remains available.
+
+##### TC-067: Verify visual indicator for out-of-stock items.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item to the cart.
+  1. Simulate the item going out of stock.
+  1. Navigate to the shopping cart page.
+- **Expected Result:** The out-of-stock item has a distinct visual indicator (e.g., red text, 'Out of Stock' label, disabled quantity selector).
+
+#### US-16: As an Online Shopper, I want to be prevented from checking out with out-of-stock items so that I don't encounter order fulfillment issues.
+
+**Test Cases:**
+##### TC-068: Cart contains an out-of-stock item, attempt to click 'Proceed to Checkout', verify prevention.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add an item to the cart.
+  1. Simulate the item going out of stock.
+  1. Navigate to the shopping cart page.
+  1. Click 'Proceed to Checkout'.
+- **Expected Result:** The system prevents navigation to checkout and displays an error message, prompting the user to resolve the out-of-stock item(s).
+
+##### TC-069: Cart contains multiple items, one is out of stock, attempt to click 'Proceed to Checkout', verify prevention.
+
+- **Type:** Negative
+- **Steps:**
+  1. Add Item A (in-stock) and Item B (out-of-stock) to the cart.
+  1. Navigate to the shopping cart page.
+  1. Click 'Proceed to Checkout'.
+- **Expected Result:** The system prevents navigation to checkout and highlights the out-of-stock item, prompting resolution.
+
+##### TC-070: Cart contains an item that was out of stock but is now back in stock, verify checkout is allowed.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add an item to the cart.
+  1. Simulate the item going out of stock.
+  1. Simulate the item coming back in stock.
+  1. Navigate to or refresh the shopping cart page.
+  1. Click 'Proceed to Checkout'.
+- **Expected Result:** The item is no longer flagged as out of stock, and the user can successfully proceed to checkout.
+
+#### US-17: As an Online Shopper, I want to be prompted to adjust the quantity if an item's available stock is less than what's in my cart so that I can complete my purchase.
+
+**Test Cases:**
+##### TC-071: Add 5 units of an item, available stock drops to 3, verify prompt to adjust quantity.
+
+- **Type:** Positive
+- **Steps:**
+  1. Add 5 units of Item A to the cart.
+  1. Simulate available stock for Item A dropping to 3.
+  1. Navigate to or refresh the shopping cart page.
+- **Expected Result:** A prompt or notification appears for Item A, suggesting to adjust the quantity to the available 3 units.
+
+##### TC-072: User accepts prompt to adjust quantity, verify quantity updates and notification clears.
+
+- **Type:** Positive
+- **Steps:**
+  1. Follow steps for TC-071.
+  1. Click the 'Adjust Quantity' button/link in the prompt.
+- **Expected Result:** The quantity of Item A automatically updates to 3, the notification clears, and the cart subtotal updates.
+
+##### TC-073: User ignores prompt and tries to checkout, verify prevention.
+
+- **Type:** Negative
+- **Steps:**
+  1. Follow steps for TC-071 (quantity mismatch exists).
+  1. Click 'Proceed to Checkout'.
+- **Expected Result:** The system prevents checkout and displays an error, reiterating the need to adjust the quantity for Item A.
+
+##### TC-074: Add 1 unit of an item, available stock drops to 0, verify prompt to remove or adjust to 0.
+
+- **Type:** Edge
+- **Steps:**
+  1. Add 1 unit of Item A to the cart.
+  1. Simulate available stock for Item A dropping to 0.
+  1. Navigate to or refresh the shopping cart page.
+- **Expected Result:** A prompt or notification appears for Item A, indicating it's out of stock and suggesting removal or adjustment to 0.
+
+#### US-18: As an Online Shopper, I want inventory updates to be real-time on the cart page so that I always see the most current availability.
+
+**Test Cases:**
+##### TC-075: While on cart page, an item's stock changes (e.g., goes out of stock), verify dynamic update.
+
+- **Type:** Positive
+- **Steps:**
+  1. Open the shopping cart page with Item A (in-stock).
+  1. In a separate process (e.g., admin panel, another user's purchase), simulate Item A going out of stock.
+  1. Observe the cart page without refreshing.
+- **Expected Result:** Item A dynamically updates to show 'Out of Stock' status on the cart page without a full page refresh.
+
+##### TC-076: While on cart page, an item that was out of stock comes back in stock, verify dynamic update.
+
+- **Type:** Positive
+- **Steps:**
+  1. Open the shopping cart page with Item A (out-of-stock).
+  1. In a separate process, simulate Item A coming back in stock.
+  1. Observe the cart page without refreshing.
+- **Expected Result:** Item A dynamically updates to show 'In Stock' status (or removes the OOS flag) on the cart page without a full page refresh.
+
+##### TC-077: Open cart page, then in another session, purchase an item from the cart, verify real-time update on the first cart page.
+
+- **Type:** Positive
+- **Steps:**
+  1. User A adds Item A (stock 1) to their cart and stays on the cart page.
+  1. User B (or another session of User A) purchases Item A, reducing stock to 0.
+  1. Observe User A's cart page without refreshing.
+- **Expected Result:** User A's cart page dynamically updates to show Item A as 'Out of Stock' or prompts for quantity adjustment.
 
 
 ---
@@ -812,7 +947,7 @@ Now, I will structure the output as requested.
 ### Project: PF-1 E-Commerce Platform - Shopping Cart Management
 
 ### Task Decomposition and Prioritization
-{'project_key': 'PEP', 'project_name': 'PF-1 E-Commerce Platform', 'created_issue_keys': ['PEP-1', 'PEP-2', 'PEP-3', 'PEP-4', 'PEP-5', 'PEP-6', 'PEP-7', 'PEP-8', 'PEP-9', 'PEP-10', 'PEP-11', 'PEP-12', 'PEP-13', 'PEP-14', 'PEP-15', 'PEP-16', 'PEP-17', 'PEP-18', 'PEP-19', 'PEP-20', 'PEP-21', 'PEP-22', 'PEP-23', 'PEP-24', 'PEP-25', 'PEP-26', 'PEP-27', 'PEP-28', 'PEP-29', 'PEP-30', 'PEP-31', 'PEP-32', 'PEP-33', 'PEP-34', 'PEP-35', 'PEP-36', 'PEP-37', 'PEP-38', 'PEP-39', 'PEP-40', 'PEP-41', 'PEP-42', 'PEP-43', 'PEP-44', 'PEP-45', 'PEP-46', 'PEP-47', 'PEP-48', 'PEP-49', 'PEP-50', 'PEP-51', 'PEP-52', 'PEP-53', 'PEP-54', 'PEP-55', 'PEP-56', 'PEP-57', 'PEP-58', 'PEP-59', 'PEP-60', 'PEP-61', 'PEP-62', 'PEP-63', 'PEP-64', 'PEP-65', 'PEP-66', 'PEP-67', 'PEP-68', 'PEP-69', 'PEP-70', 'PEP-71', 'PEP-72', 'PEP-73', 'PEP-74', 'PEP-75', 'PEP-76', 'PEP-77', 'PEP-78', 'PEP-79', 'PEP-80', 'PEP-81', 'PEP-82', 'PEP-83', 'PEP-84', 'PEP-85', 'PEP-86'], 'total_sprints_required': 1}
+{'project_key': 'PEP', 'project_name': 'PF-1 E-Commerce Platform', 'created_issue_keys': ['PEP-87', 'PEP-88', 'PEP-89', 'PEP-90', 'PEP-91', 'PEP-92', 'PEP-93', 'PEP-94', 'PEP-95', 'PEP-96', 'PEP-97', 'PEP-98', 'PEP-99', 'PEP-100', 'PEP-101', 'PEP-102', 'PEP-103', 'PEP-104', 'PEP-105', 'PEP-106', 'PEP-107', 'PEP-108', 'PEP-109', 'PEP-110', 'PEP-111', 'PEP-112', 'PEP-113', 'PEP-114', 'PEP-115', 'PEP-116', 'PEP-117', 'PEP-118', 'PEP-119', 'PEP-120', 'PEP-121', 'PEP-122', 'PEP-123', 'PEP-124', 'PEP-125', 'PEP-126', 'PEP-127', 'PEP-128', 'PEP-129', 'PEP-130', 'PEP-131', 'PEP-132', 'PEP-133', 'PEP-134', 'PEP-135', 'PEP-136', 'PEP-137', 'PEP-138', 'PEP-139', 'PEP-140', 'PEP-141', 'PEP-142', 'PEP-143', 'PEP-144', 'PEP-145', 'PEP-146', 'PEP-147', 'PEP-148', 'PEP-149', 'PEP-150', 'PEP-151', 'PEP-152', 'PEP-153', 'PEP-154', 'PEP-155', 'PEP-156'], 'total_sprints_required': 2}
 
 ### Sprint Planning Summary
 The task execution agent has processed the user stories and created:

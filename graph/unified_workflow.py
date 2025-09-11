@@ -13,6 +13,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from typing import Dict, Any
 import os
 from datetime import datetime
+from .resource_optimizer import run_workflow as run_resource_optimizer
 
 def prd_frd_generator_node(state: GraphState) -> Dict[str, Any]:
     """Generate PRD and FRD documents"""
@@ -102,6 +103,30 @@ def task_execution_node(state: GraphState) -> Dict[str, Any]:
     except Exception as e:
         print(f"❌ Error in task execution: {str(e)}")
         return {"task_execution_output": {"result": f"Error: {str(e)}", "status": "failed"}}
+
+def resource_optimization_node(state: GraphState) -> Dict[str, Any]:
+    """Run resource optimization after Jira setup."""
+    print("🧠 Running resource optimization...")
+    # Derive project_key from task execution output (deterministic generation used there)
+    project_key = None
+    try:
+        project_key = state.get("task_execution_output", {}).get("result", {}).get("project_key")
+    except Exception:
+        project_key = None
+    if not project_key:
+        return {"resource_optimization": {"status": "skipped (no project key)"}}
+
+    # Leave email source (interactive via Gmail OAuth)
+    try:
+        from tools.gmail_utils import check_leave_mail
+        leave_email = state.get("leave_email") or check_leave_mail()
+    except Exception:
+        leave_email = state.get("leave_email")
+    if not leave_email:
+        return {"resource_optimization": {"status": "no leave mails found"}}
+
+    result = run_resource_optimizer(project_key=project_key, leave_email=leave_email)
+    return {"resource_optimization": result}
 
 def markdown_generator_node(state: GraphState) -> Dict[str, Any]:
     """Generate markdown file with all outputs"""
@@ -265,6 +290,7 @@ All outputs have been generated using AI-powered analysis and should be reviewed
             "risk_analysis": state["risk_analysis"],
             "test_artifacts": state["test_artifacts"],
             "task_execution": state.get("task_execution_output", {}),
+            "resource_optimization": state.get("resource_optimization", {}),
             "summary": {
                 "project_name": state["project_name"],
                 "feature_name": state["feature_name"],
@@ -286,13 +312,15 @@ def create_unified_workflow() -> StateGraph:
     workflow.add_node("test_case_generator", test_case_generator_node)
     workflow.add_node("task_execution", task_execution_node)
     workflow.add_node("markdown_generator", markdown_generator_node)
+    workflow.add_node("resource_optimization", resource_optimization_node)
     
     # Define the flow - sequential to ensure all data is available
     workflow.set_entry_point("prd_frd_generator")
     workflow.add_edge("prd_frd_generator", "risk_analysis")
     workflow.add_edge("risk_analysis", "test_case_generator")
     workflow.add_edge("test_case_generator", "task_execution")
-    workflow.add_edge("task_execution", "markdown_generator")
+    workflow.add_edge("task_execution", "resource_optimization")
+    workflow.add_edge("resource_optimization", "markdown_generator")
     workflow.add_edge("markdown_generator", END)
     
     return workflow.compile()
@@ -318,6 +346,7 @@ def run_unified_workflow(
         "risk_thinking": "",
         "test_artifacts": {},
         "task_execution_output": {},
+        "resource_optimization": {},
         "final_output": {}
     }
     
