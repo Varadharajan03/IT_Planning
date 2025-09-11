@@ -1,5 +1,5 @@
 import time
-from duckduckgo_search import DDGS
+from ddgs  import DDGS
 def search_duckduckgo(query, max_results=5):
     try:
         with DDGS() as ddgs:

@@ -6,6 +6,7 @@ langgraph
 langchain-google-genai
 uvicorn
 pydantic
-langchain-google-genai
 python-dotenv
 langchain-core
+duckduckgo-search
+httpx
