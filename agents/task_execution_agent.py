@@ -33,12 +33,13 @@ employees = [
 ]
 
 class TaskExecutionAgent:
-    def __init__(self, user_stories, project_name, project_prefix="TP", lead_email="jeba.m.ihub@snsgroups.com"):
+    def __init__(self, user_stories, project_name, project_prefix="TP", lead_email="jeba.m.ihub@snsgroups.com", max_jira_tasks=5):
         self.user_stories = user_stories
         self.project_name = project_name
         self.project_prefix = project_prefix
         self.lead_email = lead_email
         self.project_key = self._generate_project_key_from_name(project_name, project_prefix)
+        self.max_jira_tasks = max_jira_tasks  # Limit for Jira task creation
 
     def _generate_project_key_from_name(self, name: str, fallback_prefix: str) -> str:
         """
@@ -497,6 +498,7 @@ def create_jira_sprint_tool(board: Dict, sprint_name: str = "Sprint 1") -> JiraS
 def create_jira_issues_tool(sprint_plan: SprintPlanningOutput, project: Dict, sprint: Dict) -> Dict:
     """
     Creates Jira issues and subtasks for the first sprint tasks.
+    Limited to 5 tasks for faster processing and showcasing.
     
     Args:
         sprint_plan: SprintPlanningOutput with tasks for the first sprint.
@@ -511,7 +513,12 @@ def create_jira_issues_tool(sprint_plan: SprintPlanningOutput, project: Dict, sp
         logging.warning("No project or tasks available for issue creation.")
         return {"issue_keys": []}
 
-    for i, task in enumerate(sprint_plan.first_sprint_tasks, start=1):
+    # Limit tasks for faster processing (configurable via max_jira_tasks)
+    max_tasks = 5  # Default limit for showcasing
+    tasks_to_process = sprint_plan.first_sprint_tasks[:max_tasks]
+    logging.info(f"Processing {len(tasks_to_process)} tasks (limited to {max_tasks} for faster processing and showcasing)")
+
+    for i, task in enumerate(tasks_to_process, start=1):
         try:
             assignee_email = task.get("assignee", {}).get("email")
             assignee_id = None
@@ -561,7 +568,7 @@ def create_jira_issues_tool(sprint_plan: SprintPlanningOutput, project: Dict, sp
                     if sub_issue:
                         logging.info(f"   Subtask created: {sub_issue['key']}")
                         created_issue_keys.append(sub_issue['key'])
-                        time.sleep(1)
+                        time.sleep(0.5)  # Reduced sleep time for faster processing
                     else:
                         logging.error(f"   Failed to create subtask: {sub['summary']}")
 
@@ -574,13 +581,19 @@ def create_jira_issues_tool(sprint_plan: SprintPlanningOutput, project: Dict, sp
             continue
 
     if sprint and isinstance(sprint, dict) and 'id' in sprint and created_issue_keys:
-        time.sleep(2)
+        time.sleep(1)  # Reduced sleep time for faster processing
         try:
             logging.info(f"Moving {len(created_issue_keys)} issues into sprint {sprint['id']}...")
             jira.move_issue_to_sprint(sprint["id"], created_issue_keys)
             logging.info("All issues moved into sprint successfully!")
         except Exception as e:
             logging.warning(f"Could not move issues into sprint: {e}")
+
+    # Log summary
+    total_available = len(sprint_plan.first_sprint_tasks)
+    processed = len(tasks_to_process)
+    created = len(created_issue_keys)
+    logging.info(f"Jira Task Creation Summary: {created}/{processed} tasks created (out of {total_available} available) - Limited for faster processing")
 
     return {"issue_keys": created_issue_keys}
 

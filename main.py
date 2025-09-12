@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from schemas.models import InputRequirements, OutputArtifacts
 from graph.workflow import app as test_case_graph_app, run_risk_workflow
 from graph.unified_workflow import run_unified_workflow
+from graph.fast_unified_workflow import run_fast_unified_workflow
 from graph.resource_optimizer import run_workflow as run_resource_optimizer
 from tools.gmail_utils import check_leave_mail
 from dotenv import load_dotenv
@@ -36,6 +37,7 @@ async def root():
         "version": "4.1.0",
         "endpoints": {
             "unified_workflow": "/unified-workflow",
+            "fast_unified_workflow": "/fast-unified-workflow",
             "resource_optimizer_gmail": "/resource-optimizer-gmail"
         }
     }
@@ -62,6 +64,32 @@ async def unified_workflow(request: UnifiedWorkflowRequest):
         return {
             "success": False,
             "message": f"Error in unified workflow: {str(e)}",
+            "data": None
+        }
+
+@app.post("/fast-unified-workflow")
+async def fast_unified_workflow(request: UnifiedWorkflowRequest):
+    """
+    Fast workflow: Optimized for speed and demonstration
+    PRD/FRD Generation → Risk Analysis → Test Case Generation → Task Execution → Markdown Output
+    """
+    try:
+        result = run_fast_unified_workflow(
+            project_name=request.project_name,
+            feature_name=request.feature_name,
+            industry=request.industry,
+            target_users=request.target_users,
+            business_context=request.business_context
+        )
+        return {
+            "success": True,
+            "message": "Fast unified workflow completed successfully",
+            "data": result
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Error in fast unified workflow: {str(e)}",
             "data": None
         }
 

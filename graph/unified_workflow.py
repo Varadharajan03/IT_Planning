@@ -88,11 +88,13 @@ def task_execution_node(state: GraphState) -> Dict[str, Any]:
     
     try:
         # Create task execution agent with resolved project name (deterministic key ensures reuse)
+        # Limited to 5 Jira tasks for faster processing and showcasing
         task_agent = TaskExecutionAgent(
             user_stories=user_stories_data,
             project_name=project_name,
             project_prefix="TP",
-            lead_email="jeba.m.ihub@snsgroups.com"
+            lead_email="jeba.m.ihub@snsgroups.com",
+            max_jira_tasks=5  # Limit for faster processing
         )
         
         # Execute deterministic pipeline to ensure Jira artifacts are created
