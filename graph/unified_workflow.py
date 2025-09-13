@@ -10,7 +10,7 @@ from tools.web_search import search_duckduckgo
 from schemas.models import OutputArtifacts, UserStoryInput
 from config.settings import get_llm
 from langchain_core.prompts import ChatPromptTemplate
-from typing import Dict, Any
+from typing import Dict, Any, List
 import os
 from datetime import datetime
 from .resource_optimizer import run_workflow as run_resource_optimizer
@@ -24,7 +24,11 @@ def prd_frd_generator_node(state: GraphState) -> Dict[str, Any]:
         feature_name=state["feature_name"],
         industry=state.get("industry", ""),
         target_users=state.get("target_users", ""),
-        business_context=state.get("business_context", "")
+        business_context=state.get("business_context", ""),
+        uploaded_documents=state.get("uploaded_documents", []),
+        it_domain=state.get("it_domain", ""),
+        technology_stack=state.get("technology_stack", ""),
+        compliance_requirements=state.get("compliance_requirements", "")
     )
     
     return {"prd_output": result}
@@ -332,7 +336,16 @@ def run_unified_workflow(
     feature_name: str,
     industry: str = "",
     target_users: str = "",
-    business_context: str = ""
+    business_context: str = "",
+    uploaded_documents: List[Dict[str, Any]] = None,
+    it_domain: str = "",
+    technology_stack: str = "",
+    compliance_requirements: str = "",
+    timeline: str = "",
+    budget: str = "",
+    ui_ux_preferences: str = "",
+    number_of_users: int = 1000,
+    team_size: int = 5
 ) -> Dict[str, Any]:
     """Run the complete unified workflow"""
     workflow = create_unified_workflow()
@@ -343,6 +356,15 @@ def run_unified_workflow(
         "industry": industry,
         "target_users": target_users,
         "business_context": business_context,
+        "uploaded_documents": uploaded_documents or [],
+        "it_domain": it_domain,
+        "technology_stack": technology_stack,
+        "compliance_requirements": compliance_requirements,
+        "timeline": timeline,
+        "budget": budget,
+        "ui_ux_preferences": ui_ux_preferences,
+        "number_of_users": number_of_users,
+        "team_size": team_size,
         "prd_output": {},
         "risk_analysis": [],
         "risk_thinking": "",

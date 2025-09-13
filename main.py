@@ -8,7 +8,7 @@ from graph.resource_optimizer import run_workflow as run_resource_optimizer
 from tools.gmail_utils import check_leave_mail
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Any
 from tools.json_reader import classify_prd
 from tools.web_search import search_duckduckgo
 
@@ -28,6 +28,15 @@ class UnifiedWorkflowRequest(BaseModel):
     industry: Optional[str] = ""
     target_users: Optional[str] = ""
     business_context: Optional[str] = ""
+    uploaded_documents: Optional[List[Dict[str, Any]]] = []
+    it_domain: Optional[str] = ""
+    technology_stack: Optional[str] = ""
+    compliance_requirements: Optional[str] = ""
+    timeline: Optional[str] = ""
+    budget: Optional[str] = ""
+    ui_ux_preferences: Optional[str] = ""
+    number_of_users: Optional[int] = 1000
+    team_size: Optional[int] = 5
 
 @app.get("/")
 async def root():
@@ -53,7 +62,16 @@ async def unified_workflow(request: UnifiedWorkflowRequest):
             feature_name=request.feature_name,
             industry=request.industry,
             target_users=request.target_users,
-            business_context=request.business_context
+            business_context=request.business_context,
+            uploaded_documents=request.uploaded_documents,
+            it_domain=request.it_domain,
+            technology_stack=request.technology_stack,
+            compliance_requirements=request.compliance_requirements,
+            timeline=request.timeline,
+            budget=request.budget,
+            ui_ux_preferences=request.ui_ux_preferences,
+            number_of_users=request.number_of_users,
+            team_size=request.team_size
         )
         return {
             "success": True,
@@ -73,18 +91,46 @@ async def fast_unified_workflow(request: UnifiedWorkflowRequest):
     Fast workflow: Optimized for speed and demonstration
     PRD/FRD Generation → Risk Analysis → Test Case Generation → Task Execution → Markdown Output
     """
+    import asyncio
+    import concurrent.futures
+    
     try:
-        result = run_fast_unified_workflow(
-            project_name=request.project_name,
-            feature_name=request.feature_name,
-            industry=request.industry,
-            target_users=request.target_users,
-            business_context=request.business_context
-        )
+        # Run the workflow in a thread pool with timeout
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(
+                run_fast_unified_workflow,
+                project_name=request.project_name,
+                feature_name=request.feature_name,
+                industry=request.industry,
+                target_users=request.target_users,
+                business_context=request.business_context,
+                uploaded_documents=request.uploaded_documents,
+                it_domain=request.it_domain,
+                technology_stack=request.technology_stack,
+                compliance_requirements=request.compliance_requirements,
+                timeline=request.timeline,
+                budget=request.budget,
+                ui_ux_preferences=request.ui_ux_preferences,
+                number_of_users=request.number_of_users,
+                team_size=request.team_size
+            )
+            
+            # Wait for completion with timeout (3 minutes)
+            result = await asyncio.wait_for(
+                asyncio.wrap_future(future),
+                timeout=180.0
+            )
+        
         return {
             "success": True,
             "message": "Fast unified workflow completed successfully",
             "data": result
+        }
+    except asyncio.TimeoutError:
+        return {
+            "success": False,
+            "message": "Workflow execution timed out after 3 minutes",
+            "data": None
         }
     except Exception as e:
         return {
