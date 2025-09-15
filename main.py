@@ -23,8 +23,8 @@ class PRDRequest(BaseModel):
     prd_json: Dict
 
 class UnifiedWorkflowRequest(BaseModel):
-    project_name: str
-    feature_name: str
+    project_name: Optional[str] = None  # Will be extracted from BRD documents if not provided
+    feature_name: Optional[str] = None  # Will be extracted from BRD documents if not provided
     industry: Optional[str] = ""
     target_users: Optional[str] = ""
     business_context: Optional[str] = ""

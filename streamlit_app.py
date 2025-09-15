@@ -310,10 +310,9 @@ with tab1:
                     except Exception as e:
                         st.warning(f"⚠️ Could not process document {doc.name}: {str(e)}")
             
-            # Prepare request payload
+            # Prepare request payload - project_name and feature_name will be extracted from BRD
             payload = {
-                "project_name": "BRD-Based Project",  # Default since project details are in BRD
-                "feature_name": "BRD Analysis",  # Default since details are in BRD
+                # project_name and feature_name will be dynamically extracted from uploaded BRD document
                 "industry": "IT/Technology",  # Focus on IT industry
                 "target_users": f"Expected users: {number_of_users}",  # Use number of users
                 "business_context": f"Team size: {team_size}",  # Use team size

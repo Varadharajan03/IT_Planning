@@ -8,6 +8,114 @@ from langchain_core.prompts import ChatPromptTemplate
 from schemas.models import OutputPrd
 
 
+def _analyze_brd_for_project_details(uploaded_documents: List[Dict[str, Any]]) -> Dict[str, str]:
+    """Analyze BRD documents to extract project name and feature name."""
+    if not uploaded_documents:
+        return {"project_name": "BRD-Based Project", "feature_name": "BRD Analysis"}
+    
+    llm = get_llm()
+    
+    # Combine all document content for analysis
+    combined_content = ""
+    document_titles = []
+    
+    for doc in uploaded_documents:
+        doc_name = doc.get('name', 'Unknown')
+        doc_content = doc.get('content', 'No content available')
+        document_titles.append(doc_name)
+        
+        # Add document name and content
+        combined_content += f"\n\n=== Document: {doc_name} ===\n"
+        combined_content += doc_content[:2000]  # First 2000 chars for analysis
+        if len(doc_content) > 2000:
+            combined_content += "...[content truncated]"
+    
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are an expert business analyst. Extract the main project name and primary feature/capability from BRD documents. Be concise and specific."),
+        (
+            "human",
+            (
+                """
+                Analyze the following BRD document(s) and extract:
+                1. The main PROJECT NAME (what is the overall project/system being built?)
+                2. The primary FEATURE NAME (what is the main feature/capability being described?)
+                
+                Document titles: {document_titles}
+                
+                Document content:
+                {combined_content}
+                
+                Guidelines:
+                - Look for project names in titles, headers, or explicit project references
+                - Look for feature names in requirements sections, feature lists, or capability descriptions
+                - If multiple features exist, identify the most important or primary one
+                - Be specific and avoid generic terms like "System" or "Platform" unless that's truly the name
+                - If unclear, make reasonable inferences based on the content
+                
+                Return ONLY a JSON object with exactly this format:
+                {{
+                  "project_name": "Specific Project Name",
+                  "feature_name": "Primary Feature Name"
+                }}
+                """
+            ),
+        ),
+    ])
+    
+    try:
+        msg = (prompt | llm).invoke({
+            "document_titles": ", ".join(document_titles),
+            "combined_content": combined_content
+        })
+        text = getattr(msg, "content", "").strip()
+        
+        # Parse JSON response
+        if text.startswith("```json") and text.endswith("```"):
+            text = text[7:-3]
+        elif text.startswith("```") and text.endswith("```"):
+            text = text[3:-3]
+        
+        result = json.loads(text)
+        
+        # Validate and clean the results
+        project_name = result.get("project_name", "BRD-Based Project").strip()
+        feature_name = result.get("feature_name", "BRD Analysis").strip()
+        
+        # Fallback to document title if extraction failed
+        if project_name in ["BRD-Based Project", "Unknown Project", "Project", ""] and document_titles:
+            # Try to derive project name from first document title
+            first_title = document_titles[0]
+            # Remove file extension
+            if '.' in first_title:
+                first_title = first_title.rsplit('.', 1)[0]
+            # Clean up common BRD/document prefixes
+            project_name = first_title.replace('BRD', '').replace('brd', '').replace('_', ' ').replace('-', ' ').strip()
+            if not project_name:
+                project_name = "BRD-Based Project"
+        
+        return {
+            "project_name": project_name,
+            "feature_name": feature_name
+        }
+        
+    except Exception as e:
+        print(f"Error analyzing BRD for project details: {e}")
+        # Fallback logic using document titles
+        if document_titles:
+            first_title = document_titles[0]
+            if '.' in first_title:
+                first_title = first_title.rsplit('.', 1)[0]
+            project_name = first_title.replace('BRD', '').replace('brd', '').replace('_', ' ').replace('-', ' ').strip()
+            if not project_name:
+                project_name = "BRD-Based Project"
+            return {
+                "project_name": project_name,
+                "feature_name": "Core Functionality"
+            }
+        
+        return {"project_name": "BRD-Based Project", "feature_name": "BRD Analysis"}
+
+
 class AgentState(TypedDict):
     project_name: str
     feature_name: str
@@ -30,7 +138,19 @@ def _gather_requirements(state: AgentState) -> AgentState:
     print("🔍 Gathering requirements...")
     llm = get_llm()
 
-    # Process uploaded BRD documents
+    # Extract project details from BRD documents first
+    if state.get("uploaded_documents"):
+        print("📄 Analyzing BRD documents for project details...")
+        extracted_details = _analyze_brd_for_project_details(state["uploaded_documents"])
+        
+        # Update state with extracted project details
+        state["project_name"] = extracted_details["project_name"]
+        state["feature_name"] = extracted_details["feature_name"]
+        
+        print(f"✅ Extracted Project: {state['project_name']}")
+        print(f"✅ Extracted Feature: {state['feature_name']}")
+
+    # Process uploaded BRD documents for context
     document_context = ""
     if state.get("uploaded_documents"):
         document_context = "\n\n**Business Requirement Document Analysis:**\n"
@@ -403,7 +523,23 @@ def _build_graph() -> StateGraph:
     return workflow.compile()
 
 
-def run_prd_frd(project_name: str, feature_name: str, industry: str = "", target_users: str = "", business_context: str = "", uploaded_documents: List[Dict[str, Any]] = None, it_domain: str = "", technology_stack: str = "", compliance_requirements: str = "") -> Dict[str, Any]:
+def run_prd_frd(project_name: str = None, feature_name: str = None, industry: str = "", target_users: str = "", business_context: str = "", uploaded_documents: List[Dict[str, Any]] = None, it_domain: str = "", technology_stack: str = "", compliance_requirements: str = "") -> Dict[str, Any]:
+    # Extract project details from BRD documents if not provided
+    if uploaded_documents and (not project_name or not feature_name):
+        print("📄 Extracting project details from uploaded BRD documents...")
+        extracted_details = _analyze_brd_for_project_details(uploaded_documents)
+        if not project_name:
+            project_name = extracted_details["project_name"]
+        if not feature_name:
+            feature_name = extracted_details["feature_name"]
+        print(f"✅ Extracted from BRD: {project_name} - {feature_name}")
+    
+    # Set defaults if still None
+    if not project_name:
+        project_name = "Unnamed Project"
+    if not feature_name:
+        feature_name = "Core Feature"
+    
     graph = _build_graph()
     initial_state: AgentState = {
         "project_name": project_name,
@@ -438,8 +574,27 @@ def generate_prd_frd_node(state: GraphState) -> dict:
         except Exception:
             pass
 
-    project_name = req.get("projectName") or req.get("project") or "Unnamed Project"
-    feature_name = req.get("featureName") or req.get("feature") or "Core Feature"
+    # Check if we have uploaded documents to extract project details from
+    uploaded_documents = req.get("uploaded_documents", [])
+    
+    project_name = req.get("projectName") or req.get("project")
+    feature_name = req.get("featureName") or req.get("feature")
+    
+    # If we have uploaded documents and no project/feature names provided, or they are placeholders, extract from documents
+    if uploaded_documents and (not project_name or not feature_name or 
+                              project_name in ["Unnamed Project", "To Be Extracted", "BRD-Based Project"] or 
+                              feature_name in ["Core Feature", "To Be Extracted", "BRD Analysis"]):
+        print("📄 Extracting project details from uploaded BRD documents...")
+        extracted_details = _analyze_brd_for_project_details(uploaded_documents)
+        project_name = extracted_details["project_name"]
+        feature_name = extracted_details["feature_name"]
+        print(f"✅ Extracted from BRD: {project_name} - {feature_name}")
+    
+    # Fallback if still not set
+    if not project_name:
+        project_name = "Unnamed Project"
+    if not feature_name:
+        feature_name = "Core Feature"
     industry = req.get("industry", "")
     target_users = req.get("target_users", req.get("targetUsers", ""))
     business_context = req.get("business_context", req.get("context", ""))

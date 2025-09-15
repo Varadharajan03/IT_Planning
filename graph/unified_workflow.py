@@ -332,8 +332,8 @@ def create_unified_workflow() -> StateGraph:
     return workflow.compile()
 
 def run_unified_workflow(
-    project_name: str,
-    feature_name: str,
+    project_name: str = None,
+    feature_name: str = None,
     industry: str = "",
     target_users: str = "",
     business_context: str = "",
@@ -348,6 +348,24 @@ def run_unified_workflow(
     team_size: int = 5
 ) -> Dict[str, Any]:
     """Run the complete unified workflow"""
+    from agents.prd_frd_generator import _analyze_brd_for_project_details
+    
+    # Extract project details from BRD documents if not provided
+    if uploaded_documents and (not project_name or not feature_name):
+        print("📄 Extracting project details from uploaded BRD documents...")
+        extracted_details = _analyze_brd_for_project_details(uploaded_documents)
+        if not project_name:
+            project_name = extracted_details["project_name"]
+        if not feature_name:
+            feature_name = extracted_details["feature_name"]
+        print(f"✅ Extracted from BRD: {project_name} - {feature_name}")
+    
+    # Set defaults if still None
+    if not project_name:
+        project_name = "Unnamed Project"
+    if not feature_name:
+        feature_name = "Core Feature"
+    
     workflow = create_unified_workflow()
     
     initial_state: GraphState = {
