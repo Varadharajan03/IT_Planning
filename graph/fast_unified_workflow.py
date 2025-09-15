@@ -166,7 +166,7 @@ def task_execution_node(state: GraphState) -> Dict[str, Any]:
             project_name=project_name,
             project_prefix="TP",
             lead_email="jeba.m.ihub@snsgroups.com",
-            max_jira_tasks=2  # Even fewer tasks for faster processing
+            max_jira_tasks=1  # Just 1 task for fastest processing in demo mode
         )
         
         # Execute with timeout protection using threading
@@ -189,16 +189,17 @@ def task_execution_node(state: GraphState) -> Dict[str, Any]:
         task_thread.start()
         
         # Wait for completion with timeout
-        task_thread.join(timeout=30)  # 30 second timeout
+        task_thread.join(timeout=60)  # 60 second timeout for Jira operations
         
         if task_thread.is_alive():
-            logger.warning("⚠️ Task execution timed out, returning mock data")
+            logger.warning("⚠️ Task execution timed out after 60s, returning mock data for fast demo")
             execution_result = {
                 "project_key": "TP",
                 "project_name": project_name,
-                "created_issue_keys": ["TP-1", "TP-2"],
+                "created_issue_keys": ["TP-MOCK-1", "TP-MOCK-2"],
                 "total_sprints_required": 1,
-                "status": "timeout_mock"
+                "status": "timeout_mock",
+                "message": "Fast mode: Task execution timed out, using mock data for demonstration"
             }
         elif not exception_queue.empty():
             e = exception_queue.get()
@@ -456,14 +457,14 @@ def run_fast_unified_workflow(
         workflow_thread.daemon = True
         workflow_thread.start()
         
-        # Wait for completion with timeout (2 minutes total)
-        workflow_thread.join(timeout=120)
+        # Wait for completion with timeout (8 minutes total)
+        workflow_thread.join(timeout=480)
         
         if workflow_thread.is_alive():
             total_time = time.time() - start_time
             logger.error(f"❌ Fast unified workflow timed out after {total_time:.2f}s")
             return {
-                "error": "Workflow execution timed out after 2 minutes",
+                "error": "Workflow execution timed out after 8 minutes",
                 "processing_time": total_time,
                 "processing_mode": "fast",
                 "status": "timeout"

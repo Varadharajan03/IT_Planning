@@ -113,8 +113,8 @@ with st.sidebar:
     
     **BRD Support**: Upload Business Requirement Documents (PDF, Word, text files)
     **IT Industry Focus**: Specialized for IT projects and system development
-    **Fast Mode**: Optimized for speed and demonstration (2-3 minutes)
-    **Full Mode**: Complete analysis with all features (5-15 minutes)
+    **Fast Mode**: Optimized for speed and demonstration (5-10 minutes)
+    **Full Mode**: Complete analysis with all features (10-20 minutes)
     """)
 
 # Initialize session state for document management
@@ -143,7 +143,7 @@ with tab1:
         workflow_mode = st.selectbox(
             "Workflow Mode",
             ["Fast Mode (Recommended)", "Full Mode"],
-            help="Fast Mode: Optimized for speed and demonstration (2-3 minutes)\nFull Mode: Complete analysis with all features (5-15 minutes)"
+            help="Fast Mode: Optimized for speed and demonstration (5-10 minutes)\nFull Mode: Complete analysis with all features (10-20 minutes)"
         )
     
     # BRD template download (outside form)
@@ -343,12 +343,12 @@ with tab1:
             # Select API endpoint based on mode
             if "Fast Mode" in workflow_mode:
                 endpoint = f"{api_url}/fast-unified-workflow"
-                ui_timeout = 120  # used only for progress smoothing
+                ui_timeout = 600  # Increased from 300 to 600 seconds (10 minutes)
                 request_timeout = None  # no HTTP read timeout to prevent client-side aborts
                 mode_text = "fast unified workflow"
             else:
                 endpoint = f"{api_url}/unified-workflow"
-                ui_timeout = 300  # used only for progress smoothing
+                ui_timeout = 1200  # Increased from 600 to 1200 seconds (20 minutes)
                 request_timeout = None  # no HTTP read timeout to prevent client-side aborts
                 mode_text = "full unified workflow"
             
@@ -493,7 +493,7 @@ with tab2:
             st.info(f"🕐 Workflow executed at: {st.session_state.workflow_timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Tabs for different result sections
-        result_tabs = st.tabs(["📋 PRD/FRD", "⚠️ Risk Analysis", "🧪 Test Cases", "⚙️ Task Execution", "🧠 Resource Optimization", "📄 Full Output"])
+        result_tabs = st.tabs(["📋 PRD/FRD", "🗏 SystemArchitecture", "⚠️ Risk Analysis", "🧪 Test Cases", "⚙️ Task Execution", "🧠 Resource Optimization", "📄 Full Output"])
         
         with result_tabs[0]:
             st.markdown("### Product Requirements Document (PRD)")
@@ -669,8 +669,8 @@ with tab3:
     
     ### API Endpoints
     
-    - **POST** `/fast-unified-workflow` - Run the fast workflow (recommended, 2-3 minutes)
-    - **POST** `/unified-workflow` - Run the complete workflow (5-15 minutes)
+    - **POST** `/fast-unified-workflow` - Run the fast workflow (recommended, 5-10 minutes)
+    - **POST** `/unified-workflow` - Run the complete workflow (10-20 minutes)
     - **POST** `/resource-optimizer-gmail` - Run resource optimization with Gmail integration
     - **GET** `/` - API information and health check
     

@@ -66,8 +66,12 @@ class JiraClient:
     def project_exists(self, project_key: str) -> bool:
         """Check if a project with the given key already exists"""
         url = f"{self.base_url}/rest/api/3/project/{project_key}"
-        response = requests.get(url, auth=self.auth, headers=self.headers)
-        return response.status_code == 200
+        try:
+            response = requests.get(url, auth=self.auth, headers=self.headers, timeout=self.timeout)
+            return response.status_code == 200
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error checking if project exists: {e}")
+            return False
 
     # -------------------
     # Create Project (Enhanced)
@@ -96,7 +100,7 @@ class JiraClient:
         }
 
         logging.info(f"Creating project with payload: {payload}")
-        response = requests.post(url, json=payload, auth=self.auth, headers=self.headers)
+        response = requests.post(url, json=payload, auth=self.auth, headers=self.headers, timeout=self.timeout)
         
         if response.status_code != 201:
             self._handle_error_response(response, "Project creation")
@@ -130,7 +134,7 @@ class JiraClient:
         }
         
         logging.info(f"Creating filter with payload: {payload}")
-        response = requests.post(url, json=payload, auth=self.auth, headers=self.headers)
+        response = requests.post(url, json=payload, auth=self.auth, headers=self.headers, timeout=self.timeout)
         
         if response.status_code != 200:
             self._handle_error_response(response, "Filter creation")
@@ -151,7 +155,7 @@ class JiraClient:
         }
         
         logging.info(f"Creating board with payload: {payload}")
-        response = requests.post(url, json=payload, auth=self.auth, headers=self.headers)
+        response = requests.post(url, json=payload, auth=self.auth, headers=self.headers, timeout=self.timeout)
         
         if response.status_code != 201:
             self._handle_error_response(response, "Board creation")
@@ -167,9 +171,12 @@ class JiraClient:
         if project_key:
             url += f"?projectKeyOrId={project_key}"
         
-        response = requests.get(url, auth=self.auth, headers=self.headers)
-        if response.status_code == 200:
-            return response.json()
+        try:
+            response = requests.get(url, auth=self.auth, headers=self.headers, timeout=self.timeout)
+            if response.status_code == 200:
+                return response.json()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error getting boards: {e}")
         return {"values": []}
 
     # -------------------
@@ -513,5 +520,6 @@ class JiraClient:
 jira = JiraClient(
     base_url=JIRA_BASE_URL,
     email=JIRA_EMAIL,
-    api_token=JIRA_API_TOKEN
+    api_token=JIRA_API_TOKEN,
+    timeout=60  # Increased timeout for better reliability
 )

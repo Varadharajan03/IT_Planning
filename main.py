@@ -95,7 +95,7 @@ async def fast_unified_workflow(request: UnifiedWorkflowRequest):
     import concurrent.futures
     
     try:
-        # Run the workflow in a thread pool with timeout
+        # Run the workflow in a thread pool with increased timeout
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(
                 run_fast_unified_workflow,
@@ -115,10 +115,10 @@ async def fast_unified_workflow(request: UnifiedWorkflowRequest):
                 team_size=request.team_size
             )
             
-            # Wait for completion with timeout (3 minutes)
+            # Wait for completion with increased timeout (15 minutes)
             result = await asyncio.wait_for(
                 asyncio.wrap_future(future),
-                timeout=180.0
+                timeout=900.0  # Increased to 900 seconds (15 minutes)
             )
         
         return {
@@ -129,7 +129,7 @@ async def fast_unified_workflow(request: UnifiedWorkflowRequest):
     except asyncio.TimeoutError:
         return {
             "success": False,
-            "message": "Workflow execution timed out after 3 minutes",
+            "message": "Workflow execution timed out after 15 minutes",
             "data": None
         }
     except Exception as e:
